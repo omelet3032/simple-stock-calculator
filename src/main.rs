@@ -97,8 +97,26 @@ fn main() {
             }
         };
 
+        // 4. 레버리지 계산
         break;
     }
+}
+
+fn calculate_long(loss_rate:f64) {
+    let loss_rate = loss_rate;
+    let current_stock_price = 250.0;
+
+    let leverage = 2.0;
+
+    let required_recovery_rate = loss_rate / (1.0 - loss_rate);
+    
+    let final_recovery_rate = required_recovery_rate / leverage;
+
+    let required_stock_price = current_stock_price * (1.0 + final_recovery_rate);
+    
+    println!("target_percentage : {}", required_recovery_rate);
+    println!("current_price : {}", current_stock_price);
+    println!("목표 가격 : {}", required_stock_price);
 }
 
 fn test() {
