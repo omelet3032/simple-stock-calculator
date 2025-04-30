@@ -1,21 +1,12 @@
 use std::io;
 
 fn main() {
-    // 1. 앱 실행
-    println!("레버리지 손실 회복 계산기");
-    println!("---------------------");
-
-    let position = select_position();
-    let leverage = select_leverage();
-    let loss_rate = select_loss_rate();
-    let stock_price = enter_stock_price();
-
-    // 여기에 결과가 나와야 함
-}
-
-fn select_position() -> i32 {
     loop {
         let mut input1 = String::new(); // 롱 숏 선택 input
+
+        // 1. 앱 실행
+        println!("레버리지 손실 회복 계산기");
+        println!("---------------------");
 
         // 2. 롱 or 숏 선택
         println!("포지션을 선택해주세요.");
@@ -42,11 +33,9 @@ fn select_position() -> i32 {
             }
         };
 
-        break position_choice;
+        break;
     }
-}
 
-fn select_leverage() -> i32 {
     loop {
         // 3. 배율 선택
         println!("레버리지 배율을 선택해주세요.");
@@ -78,11 +67,9 @@ fn select_leverage() -> i32 {
             }
         };
 
-        break leverage;
+        break;
     }
-}
 
-fn select_loss_rate() -> f64 {
     loop {
         println!("손실율을 입력해주세요");
         let mut input3 = String::new(); // 손실율 input
@@ -104,11 +91,9 @@ fn select_loss_rate() -> f64 {
             }
         };
         // 4. 레버리지 계산
-        break loss_rate;
+        break;
     }
-}
 
-fn enter_stock_price() -> f64 {
     loop {
         println!("본주의 가격을 입력하세요");
 
@@ -131,7 +116,47 @@ fn enter_stock_price() -> f64 {
             }
         };
 
-        break stock_price;
+        break;
+    }
+
+    // 여기에 결과가 나와야 함
+}
+
+fn select_position() {
+
+    loop {
+        let mut input1 = String::new(); // 롱 숏 선택 input
+
+        // 1. 앱 실행
+        println!("레버리지 손실 회복 계산기");
+        println!("---------------------");
+
+        // 2. 롱 or 숏 선택
+        println!("포지션을 선택해주세요.");
+        println!("1. 롱");
+        println!("2. 숏");
+
+        io::stdin().read_line(&mut input1).expect("입력 실패");
+
+        let position_choice = match input1.trim().parse::<i32>() {
+            Ok(n) if n == 1 || n == 2 => {
+                if n == 1 {
+                    println!("롱을 선택하셨습니다.");
+                } else if n == 2 {
+                    println!("숏을 선택하셨습니다.");
+                }
+                n
+            }
+            Ok(_) => {
+                println!("1과 2 둘 중 하나를 입력해주세요.");
+                continue;
+            }
+            Err(_) => {
+                continue;
+            }
+        };
+
+        break;
     }
 }
 
@@ -150,4 +175,78 @@ fn calculate_long(loss_rate: f64, leverage: f64, current_stock_price: f64) {
     println!("target_percentage : {}", required_recovery_rate);
     println!("current_price : {}", current_stock_price);
     println!("목표 가격 : {}", required_stock_price);
+}
+
+fn test() {
+    loop {
+        let mut input1 = String::new(); // 롱 숏 선택 input
+        let mut input2 = String::new(); // 손실율 input
+        let mut input3 = String::new(); // 본주 input
+
+        // 1. 안내
+        println!("레버리지 계산기 시작ㅓ");
+
+        // 2. 롱 or 숏 선택
+        println!("1. 롱");
+        println!("2. 숏");
+
+        io::stdin().read_line(&mut input1).expect("입력 실패");
+
+        // let num: i32 = match input.trim().parse::<i32>() {
+        let position_choice = match input1.trim().parse::<i32>() {
+            Ok(n) => {
+                if n == 1 {
+                    println!("롱을 선택하셨습니다.");
+                } else if n == 2 {
+                    println!("숏을 선택하셨습니다.");
+                } else {
+                    println!("입력이 잘못되었습니다.");
+                    continue;
+                }
+                n
+            }
+            Err(_) => {
+                println!("입력이 잘못되었습니다");
+                continue;
+            }
+        };
+        // println!("입력 값 : {}", position_choice);
+        println!("손실율을 입력하세요.");
+
+        // 입력값을 2개를 받는다. 둘 다 정수
+        // ex. 1 -> 10
+
+        // 3. 손실율
+        io::stdin().read_line(&mut input2).expect("입력 실패");
+
+        let loss_rate = match input2.trim().parse::<i32>() {
+            Ok(n) => {
+                // println!("입력 값 : {}%", n);
+                // 손실율은 100%를 넘어갈 수 없다.
+                // 소수점일 수도 있다.
+                // break;
+                // return;
+                n
+            }
+            Err(_) => {
+                println!("잘못된 입력 : {}", input2.trim());
+                continue;
+            }
+        };
+        println!("{}%", loss_rate);
+
+        // 4. 본주 가격 입력
+        println!("본주의 가격을 입력하시오.");
+        io::stdin().read_line(&mut input3).expect("입력 실패");
+
+        let stock_price = match input3.trim().parse::<i32>() {
+            Ok(n) => n,
+            Err(_) => {
+                println!("잘못된 입력 : {}", input3.trim());
+                continue;
+            }
+        };
+        println!("${}", stock_price);
+        break;
+    }
 }
