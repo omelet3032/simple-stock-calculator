@@ -8,9 +8,26 @@ fn main() {
     let position = select_position();
     let leverage = select_leverage();
     let loss_rate = select_loss_rate();
-    let stock_price = enter_stock_price();
+    let current_stock_price = enter_stock_price();
+
+    let required_recovery_rate = calculate_recovery_rate(loss_rate, leverage);
+    // let objected_stock_price = calculate_objected_stock_price(position, recovery_rate, current_stock_price);
+    let objected_stock_price = calculate_objected_stock_price(position, required_recovery_rate, current_stock_price);
+
+    println!("필요 손실 회복율 : {}%", required_recovery_rate);
+    println!("목표 주가 : ${}", objected_stock_price);
+
+
+    // if position == 1 {
+    //     let required_stock_price = calculate_long(loss_rate, leverage, current_stock_price);
+    //     println!("목표 주식 가격 : {}", required_stock_price);
+    // } else if position == 2 {
+    //     let required_stock_price = calculate_short(loss_rate, leverage, current_stock_price);
+    //     println!("목표 주식 가격 : {}", required_stock_price);
+    // }
 
     // 여기에 결과가 나와야 함
+    // let object_price
 }
 
 fn select_position() -> i32 {
@@ -46,30 +63,27 @@ fn select_position() -> i32 {
     }
 }
 
-fn select_leverage() -> i32 {
+fn select_leverage() -> f64 {
     loop {
         // 3. 배율 선택
         println!("레버리지 배율을 선택해주세요.");
-        println!("1. 1x");
-        println!("2. 2x");
-        println!("3. 3x");
+        println!("1. 2x");
+        println!("2. 3x");
 
         let mut input2 = String::new(); // 배율 선택
         io::stdin().read_line(&mut input2).expect("입력 실패");
 
         let leverage = match input2.trim().parse::<i32>() {
-            Ok(n) if n == 1 || n == 2 || n == 3 => {
-                if n == 1 {
-                    println!("1x를 선택하셨습니다");
-                } else if n == 2 {
-                    println!("2x를 선택하셨습니다.");
-                } else if n == 3 {
-                    println!("3x를 선택하셨습니다");
-                }
-                n
+            Ok(1) => {
+                println!("2x를 선택하셨습니다.");
+                2.0
+            }
+            Ok(2) => {
+                println!("3x를 선택하셨습니다.");
+                3.0
             }
             Ok(_) => {
-                println!("1,2,3중 하나를 입력해주세요");
+                println!("1,2중 하나를 입력해주세요");
                 continue;
             }
             Err(_) => {
@@ -135,19 +149,63 @@ fn enter_stock_price() -> f64 {
     }
 }
 
-fn calculate_long(loss_rate: f64, leverage: f64, current_stock_price: f64) {
-    // let loss_rate = loss_rate;
-    // let current_stock_price = 250.0;
+fn calculate_recovery_rate(loss_rate: f64, leverage: f64) -> f64 {
+    let required_recovery_rate = loss_rate / (100.0 - loss_rate);
 
-    // let leverage = 2.0;
+    let required_recovery_rate_with_leverage = required_recovery_rate / leverage;
 
-    let required_recovery_rate = loss_rate / (1.0 - loss_rate);
+    // println!("필요 회복율 : {}", required_recovery_rate_with_leverage);
+    // return required_recovery_rate_with_leverage;
+    required_recovery_rate_with_leverage
+}
 
-    let final_recovery_rate = required_recovery_rate / leverage;
+fn calculate_objected_stock_price(
+    position: i32,
+    required_recovery_rate_with_leverage: f64,
+    current_stock_price: f64,
+) -> f64 {
+    
+    let objected_stock_price = match position {
+        1 => current_stock_price * (1.0 + required_recovery_rate_with_leverage),
+        2 => current_stock_price * (1.0 - required_recovery_rate_with_leverage),
+        // _ => panic!()
+        _ => unreachable!()
+    };
+    // println!("목표 주가 : ${}", objected_stock_price);
+    objected_stock_price
+    // let required_stock_price: f64;
+    
+    // if position == 1 {
 
-    let required_stock_price = current_stock_price * (1.0 + final_recovery_rate);
+    //     let required_stock_price = current_stock_price * (1.0 + required_recovery_rate_with_leverage);
+    //     return required_stock_price;
+    // } else if position == 2 {
+        
+    //     let required_stock_price = current_stock_price * (1.0 - required_recovery_rate_with_leverage);
+    //     return required_stock_price;
+    // }
+    // let required_stock_price = current_stock_price * (1.0 + required_recovery_rate_with_leverage);
+    
+    // println!("목표 가격 : {}", required_stock_price);
 
-    println!("target_percentage : {}", required_recovery_rate);
-    println!("current_price : {}", current_stock_price);
+    // return required_stock_price;
+}
+
+// fn calculate_long(loss_rate: f64, leverage: f64, current_stock_price: f64) -> f64 {
+//     let required_recovery_rate = loss_rate / (100.0 - loss_rate);
+
+//     let required_recovery_rate_with_leverage = required_recovery_rate / leverage;
+// }
+
+fn calculate_short(loss_rate: f64, leverage: f64, current_stock_price: f64) -> f64 {
+    let required_recovery_rate = loss_rate / (100.0 - loss_rate);
+
+    let required_recovery_rate_with_leverage = required_recovery_rate / leverage;
+
+    let required_stock_price = current_stock_price * (1.0 - required_recovery_rate_with_leverage);
+
+    println!("필요 회복율 : {}", required_recovery_rate_with_leverage);
     println!("목표 가격 : {}", required_stock_price);
+
+    return required_stock_price;
 }
