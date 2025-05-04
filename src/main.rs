@@ -3,6 +3,8 @@ use std::io;
 fn main() {
     // 1. 앱 실행
     println!("레버리지 손실 회복 계산기");
+    println!("해당 계산은 한번도 하락없이 연속적으로 상승한다는 가정하에 진행됩니다.");
+    println!("수수료, 괴리율, 시장 상황에 따라 목표 본주 가격은 계산값보다 상승할 수 있습니다");
     println!("---------------------");
 
     let position = select_position();
@@ -11,23 +13,19 @@ fn main() {
     let current_stock_price = enter_stock_price();
 
     let required_recovery_rate = calculate_recovery_rate(loss_rate, leverage);
-    // let objected_stock_price = calculate_objected_stock_price(position, recovery_rate, current_stock_price);
-    let objected_stock_price = calculate_objected_stock_price(position, required_recovery_rate, current_stock_price);
+    let objected_stock_price =
+        calculate_objected_stock_price(position, required_recovery_rate, current_stock_price);
+    
+    format_rate_and_price(required_recovery_rate, objected_stock_price);
+}
 
-    println!("필요 손실 회복율 : {}%", required_recovery_rate);
-    println!("목표 주가 : ${}", objected_stock_price);
+fn format_rate_and_price(required_recovery_rate: f64, objected_stock_price: f64) {
+    println!(
+        "레버리지 배율이 적용된 필요 회복율 : {}%",
+        format!("{:.2}", required_recovery_rate * 100.0)
+    );
 
-
-    // if position == 1 {
-    //     let required_stock_price = calculate_long(loss_rate, leverage, current_stock_price);
-    //     println!("목표 주식 가격 : {}", required_stock_price);
-    // } else if position == 2 {
-    //     let required_stock_price = calculate_short(loss_rate, leverage, current_stock_price);
-    //     println!("목표 주식 가격 : {}", required_stock_price);
-    // }
-
-    // 여기에 결과가 나와야 함
-    // let object_price
+    println!("목표 본주 가격 : ${}", format!("{:.2}", objected_stock_price));
 }
 
 fn select_position() -> i32 {
@@ -117,7 +115,6 @@ fn select_loss_rate() -> f64 {
                 continue;
             }
         };
-        // 4. 레버리지 계산
         break loss_rate;
     }
 }
@@ -154,8 +151,6 @@ fn calculate_recovery_rate(loss_rate: f64, leverage: f64) -> f64 {
 
     let required_recovery_rate_with_leverage = required_recovery_rate / leverage;
 
-    // println!("필요 회복율 : {}", required_recovery_rate_with_leverage);
-    // return required_recovery_rate_with_leverage;
     required_recovery_rate_with_leverage
 }
 
@@ -164,48 +159,10 @@ fn calculate_objected_stock_price(
     required_recovery_rate_with_leverage: f64,
     current_stock_price: f64,
 ) -> f64 {
-    
     let objected_stock_price = match position {
         1 => current_stock_price * (1.0 + required_recovery_rate_with_leverage),
         2 => current_stock_price * (1.0 - required_recovery_rate_with_leverage),
-        // _ => panic!()
-        _ => unreachable!()
+        _ => unreachable!(),
     };
-    // println!("목표 주가 : ${}", objected_stock_price);
     objected_stock_price
-    // let required_stock_price: f64;
-    
-    // if position == 1 {
-
-    //     let required_stock_price = current_stock_price * (1.0 + required_recovery_rate_with_leverage);
-    //     return required_stock_price;
-    // } else if position == 2 {
-        
-    //     let required_stock_price = current_stock_price * (1.0 - required_recovery_rate_with_leverage);
-    //     return required_stock_price;
-    // }
-    // let required_stock_price = current_stock_price * (1.0 + required_recovery_rate_with_leverage);
-    
-    // println!("목표 가격 : {}", required_stock_price);
-
-    // return required_stock_price;
-}
-
-// fn calculate_long(loss_rate: f64, leverage: f64, current_stock_price: f64) -> f64 {
-//     let required_recovery_rate = loss_rate / (100.0 - loss_rate);
-
-//     let required_recovery_rate_with_leverage = required_recovery_rate / leverage;
-// }
-
-fn calculate_short(loss_rate: f64, leverage: f64, current_stock_price: f64) -> f64 {
-    let required_recovery_rate = loss_rate / (100.0 - loss_rate);
-
-    let required_recovery_rate_with_leverage = required_recovery_rate / leverage;
-
-    let required_stock_price = current_stock_price * (1.0 - required_recovery_rate_with_leverage);
-
-    println!("필요 회복율 : {}", required_recovery_rate_with_leverage);
-    println!("목표 가격 : {}", required_stock_price);
-
-    return required_stock_price;
 }
