@@ -81,7 +81,6 @@ fn select_position() -> Position {
                 continue;
             }
         };
-
     }
 }
 
@@ -146,6 +145,7 @@ fn enter_stock_price() -> f64 {
 
         io::stdin().read_line(&mut input4).expect("입력 실패");
 
+        // 이건 그냥 남겨두자. let stock_price 이런 식으로 값을 일단 변수에 저장해두고 추후 필요시 사용하자.
         let stock_price = match input4.trim().parse::<f64>() {
             Ok(n) if n > 0.0 && n < 10000000.0 => {
                 println!("-> 입력된 값 : ${}", n);
@@ -167,34 +167,22 @@ fn enter_stock_price() -> f64 {
 }
 
 fn calculate_recovery_rate(loss_rate: f64, leverage: Leverage) -> f64 {
-    let required_recovery_rate = loss_rate / (100.0 - loss_rate);
+    // let required_recovery_rate = loss_rate / (100.0 - loss_rate);
 
-    let required_recovery_rate_with_leverage = required_recovery_rate / leverage.value();
+    // let required_recovery_rate_with_leverage = required_recovery_rate / leverage.value();
 
-    required_recovery_rate_with_leverage
+    (loss_rate / (100.0 - loss_rate)) / leverage.value()
+
+    // required_recovery_rate_with_leverage
 }
-
-// fn calculate_target_stock_price(
-//     position: i32,
-//     required_recovery_rate_with_leverage: f64,
-//     current_stock_price: f64,
-// ) -> f64 {
-//     let target_stock_price = match position {
-//         1 => current_stock_price * (1.0 + required_recovery_rate_with_leverage),
-//         2 => current_stock_price * (1.0 - required_recovery_rate_with_leverage),
-//         _ => unreachable!(),
-//     };
-//     target_stock_price
-// }
 
 fn calculate_target_stock_price(
     position: Position,
     required_recovery_rate_with_leverage: f64,
     current_stock_price: f64,
 ) -> f64 {
-    let target_stock_price = match position {
+    match position {
         Position::Long => current_stock_price * (1.0 + required_recovery_rate_with_leverage),
         Position::Short => current_stock_price * (1.0 - required_recovery_rate_with_leverage),
-    };
-    target_stock_price
+    }
 }
