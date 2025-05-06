@@ -1,4 +1,14 @@
 use std::io;
+use std::fmt;
+
+impl fmt::Display for Leverage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Leverage::Daily2x => write!(f, "2X"),
+            Leverage::Daily3x => write!(f, "3X"),
+        }
+    }
+}
 
 fn main() {
     print_app_guide();
@@ -96,8 +106,12 @@ fn select_leverage() -> Leverage {
 
         match input2.trim().parse::<i32>() {
             Ok(1) => {
-                println!("-> x2를 선택하셨습니다.");
-                break Leverage::Daily2x;
+                // println!("-> x2를 선택하셨습니다.");
+                // break Leverage::Daily2x;
+                let leverage = Leverage::Daily2x;
+                println!("Leverage: {}", leverage);
+                return Leverage::Daily2x;
+                
             }
             Ok(2) => {
                 println!("-> x3를 선택하셨습니다.");
@@ -159,7 +173,6 @@ fn enter_stock_price() -> f64 {
                 continue;
             }
         };
-
     }
 }
 
