@@ -145,11 +145,10 @@ fn enter_stock_price() -> f64 {
 
         io::stdin().read_line(&mut input4).expect("입력 실패");
 
-        // 이건 그냥 남겨두자. let stock_price 이런 식으로 값을 일단 변수에 저장해두고 추후 필요시 사용하자.
-        let stock_price = match input4.trim().parse::<f64>() {
-            Ok(n) if n > 0.0 && n < 10000000.0 => {
-                println!("-> 입력된 값 : ${}", n);
-                n
+        match input4.trim().parse::<f64>() {
+            Ok(stock_price) if stock_price > 0.0 && stock_price < 10000000.0 => {
+                println!("-> 입력된 값 : ${}", stock_price);
+                break stock_price;
             }
             Ok(_) => {
                 println!("-> 1~10000000 사이 가격을 입력해주세요");
@@ -161,19 +160,11 @@ fn enter_stock_price() -> f64 {
             }
         };
 
-        println!("---------------------");
-        break stock_price;
     }
 }
 
 fn calculate_recovery_rate(loss_rate: f64, leverage: Leverage) -> f64 {
-    // let required_recovery_rate = loss_rate / (100.0 - loss_rate);
-
-    // let required_recovery_rate_with_leverage = required_recovery_rate / leverage.value();
-
     (loss_rate / (100.0 - loss_rate)) / leverage.value()
-
-    // required_recovery_rate_with_leverage
 }
 
 fn calculate_target_stock_price(
