@@ -26,15 +26,108 @@ fn get_input<T>(
         io::stdin().read_line(&mut input).expect("입력 실패");
         let trimmed = input.trim();
 
-        if let Some(value) = parser(trimmed) {
-            if validator(&value) {
-                return value;
+        // 추상화 버전
+        // if let Some(value) = parser(trimmed) {
+        //     if validator(&value) {
+        //         return value;
+        //     }
+        // }
+
+        match parser(trimmed) {
+            Some(v) => {
+                let value = v;
+                if validator(&value) {
+                    return value;
+                }
+                // return value;
+            }
+            None => {
+                println!("{}", error_msg);
             }
         }
-
-        println!("{}", error_msg);
     }
 }
+
+fn enter_loss_rate2() -> f64 {
+    get_input("3. 손실율을 입력해주세요.", 
+    |n| match n.parse::<f64>() {
+        Ok(n) if n > constraints::MIN_LOSS_RATE && n < constraints::MAX_LOSS_RATE => Some(n),
+        _ => None,
+    }, 
+    |n| *n != 70.0, 
+    "다시 입력해주세요.")
+}
+
+fn enter_loss_rate() -> f64 {
+    loop {
+        println!("3. 손실율을 입력해주세요");
+        println!("");
+        let mut input3 = String::new(); // 손실율 input
+
+        io::stdin().read_line(&mut input3).expect("입력 실패");
+
+        match input3.trim().parse::<f64>() {
+            Ok(loss_rate)
+                if loss_rate > constraints::MIN_LOSS_RATE
+                    && loss_rate < constraints::MAX_LOSS_RATE =>
+            {
+                println!("-> 입력된 값 : {}%", loss_rate);
+                return loss_rate;
+            }
+            Ok(_) => {
+                println!("-> 1~99 사이의 손실율을 입력해주세요");
+                continue;
+            }
+            Err(_) => {
+                println!("-> 정수를 입력해주세요");
+                continue;
+            }
+        };
+    }
+}
+
+// fn get_input_f64<T>(
+//     prompt: &str,
+//     parser: fn(f64) -> Option<T>,
+//     validator: fn(&T) -> bool,
+//     error_msg: &str,
+// ) -> T {
+//     loop {
+//         println!("{}", prompt);
+
+//         let mut input = String::new();
+//         io::stdin().read_line(&mut input).expect("입력 실패");
+//         // let trimmed = input.trim().parse::<f64>();
+
+//         // 추상화 버전
+//         if let Ok(num) = input.trim().parse::<f64>() {
+//             if let Some(value) = parser(num) {
+//                 if validator(&value) {
+//                     return value;
+//                 }
+//             }
+//         }
+
+//         println!("{}", error_msg);
+//     }
+// }
+
+// fn enter_loss_rate_input() -> f64 {
+//     get_input_f64(
+//         "3. 손실율을 입력해주세요",
+//         |n|  {
+//             if n > constraints::MIN_LOSS_RATE && n < constraints::MAX_LOSS_RATE {
+//                 Some(n)
+//             } else {
+
+//                 None
+//             }
+//         },
+//         |_| true,
+//         "다시 입력해주세요",
+//     )
+// }
+
 
 fn select_position() -> Position {
     get_input(
@@ -50,7 +143,7 @@ fn select_position() -> Position {
 }
 
 fn select_leverage() -> Leverage {
-    get_input (
+    get_input(
         "2. 배율을 선택해주세요. \n1) 2X, 2) 3x",
         |s| match s {
             "1" => Some(Leverage::Daily2x),
@@ -68,7 +161,8 @@ fn main() {
     println!("{}을 선택하셨습니다.", position);
     let leverage = select_leverage();
     println!("{}을 선택하셨습니다.", leverage);
-    let loss_rate = enter_loss_rate();
+    // let loss_rate = enter_loss_rate();
+    let loss_rate = enter_loss_rate2();
     let current_stock_price = enter_stock_price();
 
     let required_recovery_rate = calculate_recovery_rate(loss_rate, leverage);
@@ -101,33 +195,33 @@ fn print_calculation(required_recovery_rate: f64, target_stock_price: f64) {
     );
 }
 
-fn enter_loss_rate() -> f64 {
-    loop {
-        println!("3. 손실율을 입력해주세요");
-        println!("");
-        let mut input3 = String::new(); // 손실율 input
+// fn enter_loss_rate() -> f64 {
+//     loop {
+//         println!("3. 손실율을 입력해주세요");
+//         println!("");
+//         let mut input3 = String::new(); // 손실율 input
 
-        io::stdin().read_line(&mut input3).expect("입력 실패");
+//         io::stdin().read_line(&mut input3).expect("입력 실패");
 
-        match input3.trim().parse::<f64>() {
-            Ok(loss_rate)
-                if loss_rate > constraints::MIN_LOSS_RATE
-                    && loss_rate < constraints::MAX_LOSS_RATE =>
-            {
-                println!("-> 입력된 값 : {}%", loss_rate);
-                return loss_rate;
-            }
-            Ok(_) => {
-                println!("-> 1~99 사이의 손실율을 입력해주세요");
-                continue;
-            }
-            Err(_) => {
-                println!("-> 정수를 입력해주세요");
-                continue;
-            }
-        };
-    }
-}
+//         match input3.trim().parse::<f64>() {
+//             Ok(loss_rate)
+//                 if loss_rate > constraints::MIN_LOSS_RATE
+//                     && loss_rate < constraints::MAX_LOSS_RATE =>
+//             {
+//                 println!("-> 입력된 값 : {}%", loss_rate);
+//                 return loss_rate;
+//             }
+//             Ok(_) => {
+//                 println!("-> 1~99 사이의 손실율을 입력해주세요");
+//                 continue;
+//             }
+//             Err(_) => {
+//                 println!("-> 정수를 입력해주세요");
+//                 continue;
+//             }
+//         };
+//     }
+// }
 
 fn enter_stock_price() -> f64 {
     loop {
