@@ -1,15 +1,23 @@
-use std::fmt;
 use std::io;
 
-use constraints::*;
-use msg::*;
+// use msg::*;
+use types::Leverage;
+use types::Position;
 
+mod constraints;
+mod display;
+mod types;
 
-fn get_input<T>
-(prompt: &str,
-parser: fn(&str) -> Option<T>,
-validator: fn(&T) -> bool,
-error_msg: &str,
+// mod msg {
+//     pub const INVAILD_NUMBER_MSG: &str = "정수를 입력해주세요";
+//     pub const INVAILD_RANGE_MSG: &str = "유효한 범위를 입력해주세요";
+// }
+
+fn get_input<T>(
+    prompt: &str,
+    parser: fn(&str) -> Option<T>,
+    validator: fn(&T) -> bool,
+    error_msg: &str,
 ) -> T {
     loop {
         println!("{}", prompt);
@@ -25,9 +33,7 @@ error_msg: &str,
         }
 
         println!("{}", error_msg);
-
     }
-
 }
 
 fn select_position() -> Position {
@@ -43,35 +49,18 @@ fn select_position() -> Position {
     )
 }
 
-mod msg {
-    pub const INVAILD_NUMBER_MSG:&str = "정수를 입력해주세요";
-    pub const INVAILD_RANGE_MSG:&str = "유효한 범위를 입력해주세요";
+fn select_leverage() -> Leverage {
+    get_input (
+        "2. 배율을 선택해주세요. \n1) 2X, 2) 3x",
+        |s| match s {
+            "1" => Some(Leverage::Daily2x),
+            "2" => Some(Leverage::Daily3x),
+            _ => None,
+        },
+        |_| true,
+        "-> 1 또는 2를 입력해주세요.",
+    )
 }
-mod constraints {
-    pub const MIN_LOSS_RATE: f64 = 0.0;
-    pub const MAX_LOSS_RATE: f64 = 100.0;
-    pub const MIN_STOCK_PRICE: f64 = 0.0;
-    pub const MAX_STOCK_PRICE: f64 = 10_000_000.0;
-}
-
-impl fmt::Display for Leverage {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Leverage::Daily2x => write!(f, "2X"),
-            Leverage::Daily3x => write!(f, "3X"),
-        }
-    }
-}
-
-impl fmt::Display for Position {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Position::Long => write!(f, "Long"),
-            Position::Short => write!(f, "Short"),
-        }
-    }
-}
-
 fn main() {
     print_app_guide();
 
@@ -87,24 +76,6 @@ fn main() {
         calculate_target_stock_price(position, required_recovery_rate, current_stock_price);
 
     print_calculation(required_recovery_rate, target_stock_price);
-}
-enum Position {
-    Long,
-    Short,
-}
-
-enum Leverage {
-    Daily2x,
-    Daily3x,
-}
-
-impl Leverage {
-    fn value(&self) -> f64 {
-        match self {
-            Leverage::Daily2x => 2.0,
-            Leverage::Daily3x => 3.0,
-        }
-    }
 }
 
 fn print_app_guide() {
@@ -130,56 +101,6 @@ fn print_calculation(required_recovery_rate: f64, target_stock_price: f64) {
     );
 }
 
-// fn select_position() -> Position {
-//     loop {
-//         let mut input1 = String::new(); // 롱 숏 선택 input
-
-//         // 2. 롱 or 숏 선택
-//         println!("1. 포지션을 선택해주세요.");
-//         println!("");
-//         println!("1) Long, 2) Short");
-
-//         io::stdin().read_line(&mut input1).expect("입력 실패");
-
-//         match input1.trim() {
-//             "1" => return Position::Long,
-//             "2" => return Position::Short,
-//             _ => {
-//                 println!("1과 2중 하나를 입력해주세요.");
-//                 continue;
-//             }
-//         }
-//     }
-// }
-
-fn select_leverage() -> Leverage {
-    loop {
-        // 3. 배율 선택
-        println!("2. 레버리지 배율을 선택해주세요.");
-        println!("");
-        println!("1) x2, 2) x3");
-
-        let mut input2 = String::new(); // 배율 선택
-        io::stdin().read_line(&mut input2).expect("입력 실패");
-
-        // position은 문자열 처리, leverage는 정수 처리 (공부용)
-        match input2.trim().parse::<i32>() {
-            Ok(1) => {
-                // println!("Leverage: {}를 선택하셨습니다.", Leverage::Daily2x);
-                return Leverage::Daily2x;
-            }
-            Ok(2) => {
-                println!("Leverage: {}를 선택하셨습니다.", Leverage::Daily3x);
-                return Leverage::Daily3x;
-            }
-            _ => {
-                println!("1 또는 2를 입력해주세요.");
-                continue;
-            }
-        };
-    }
-}
-
 fn enter_loss_rate() -> f64 {
     loop {
         println!("3. 손실율을 입력해주세요");
@@ -189,7 +110,10 @@ fn enter_loss_rate() -> f64 {
         io::stdin().read_line(&mut input3).expect("입력 실패");
 
         match input3.trim().parse::<f64>() {
-            Ok(loss_rate) if loss_rate > MIN_LOSS_RATE && loss_rate < MAX_LOSS_RATE => {
+            Ok(loss_rate)
+                if loss_rate > constraints::MIN_LOSS_RATE
+                    && loss_rate < constraints::MAX_LOSS_RATE =>
+            {
                 println!("-> 입력된 값 : {}%", loss_rate);
                 return loss_rate;
             }
@@ -215,7 +139,10 @@ fn enter_stock_price() -> f64 {
         io::stdin().read_line(&mut input4).expect("입력 실패");
 
         match input4.trim().parse::<f64>() {
-            Ok(stock_price) if stock_price > MIN_STOCK_PRICE && stock_price < MAX_STOCK_PRICE => {
+            Ok(stock_price)
+                if stock_price > constraints::MIN_STOCK_PRICE
+                    && stock_price < constraints::MAX_STOCK_PRICE =>
+            {
                 println!("-> 입력된 값 : ${}", stock_price);
                 return stock_price;
             }
