@@ -1,7 +1,8 @@
 [package]
-name = "leverage-calculator"
+name = "simple-stock-calculator"
 version = "1.0.0"
 edition = "2024"
+description = "A simple leverage calculator written in Rust"
 
 [dependencies]
 

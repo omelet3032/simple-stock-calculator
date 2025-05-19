@@ -1,4 +1,4 @@
-use leverage_calculator::{calculator::*, display::*, input::*};
+use simple_stock_calculator::{calculator::*, display::*, input::*};
 
 fn main() {
     print_app_guide();
