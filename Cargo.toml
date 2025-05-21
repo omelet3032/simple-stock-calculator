@@ -2,7 +2,20 @@
 name = "simple-stock-calculator"
 version = "1.0.0"
 edition = "2024"
-description = "A simple leverage calculator written in Rust"
+description = "A simple stock calculator(calculating recovery rate)"
+license = "MIT"
+authors = ["omelet3032@gmail.com"]
+homepage = "https://github.com/omelet3032/simple-stock-calculator"
+repository = "https://github.com/omelet3032/simple-stock-calculator"
 
 [dependencies]
 
+
+[package.metadata.rpm]
+package = "simple-stock-calculator"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+simple-stock-calculator = { path = "/usr/bin/simple-stock-calculator" }
