@@ -8,7 +8,7 @@ pub fn calculate_recovery_rate(loss_rate: f64) -> f64 {
 
 pub fn calculate_target_stock_price(
     position: Position,
-    leverage: &Leverage,
+    leverage: Leverage,
     recovery_rate: f64,
     current_stock_price: f64,
 ) -> f64 {

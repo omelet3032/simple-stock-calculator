@@ -14,7 +14,7 @@ fn main() {
 
     let target_stock_price = calculate_target_stock_price(
         position,
-        &leverage,
+        leverage,
         required_recovery_rate,
         current_stock_price,
     );

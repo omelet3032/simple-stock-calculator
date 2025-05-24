@@ -2,7 +2,7 @@ pub enum Position {
     Long,
     Short,
 }
-
+#[derive(Copy, Clone)]
 pub enum Leverage {
     Daily2x,
     Daily3x,
@@ -23,7 +23,7 @@ pub enum Sign {
 }
 
 
-pub enum Message<'a> {
+pub enum Message {
     StartGuide,
 
     InvaildNumber,
@@ -42,7 +42,7 @@ pub enum Message<'a> {
 
     InputRate(f64),
     InputPrice(f64),
-    InputLeverage(&'a Leverage),
+    InputLeverage(Leverage),
 
     BaseResult(f64),
     AdjustedResult(f64),

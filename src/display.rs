@@ -13,7 +13,7 @@ pub fn print_result(input_rate: f64, input_price: f64, leverage:Leverage, recove
     println!("{}", Message::ResultGuide);
     println!("{}", Message::InputRate(input_rate));
     println!("{}", Message::InputPrice(input_price));
-    print!("{}", Message::InputLeverage(&leverage));
+    print!("{}", Message::InputLeverage(leverage));
     println!("{}", Message::BaseResult(recovery_rate));
     println!("{}", Message::AdjustedResult(recovery_rate / leverage.value()));
     println!("{}", Message::PriceResult(target_stock_price));
@@ -53,7 +53,7 @@ impl Sign {
     }
 }
 
-impl<'a> fmt::Display for Message<'a> {
+impl fmt::Display for Message {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Message::StartGuide => write!(
