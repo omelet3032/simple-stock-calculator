@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{self, write};
 
 use super::types::{Leverage, Message, Position, Sign};
 
@@ -6,11 +6,24 @@ pub fn print_app_guide() {
     println!("{}", Message::StartGuide);
 }
 
-pub fn print_result(base_rate: f64, adjusted_rate: f64, target_stock_price: f64) {
+/* 
+파라미터로 input_loss_rate input_stock_price
+*/
+pub fn print_result(input_rate: f64, input_price: f64, leverage:Leverage, recovery_rate: f64, target_stock_price: f64) {
     println!("{}", Message::ResultGuide);
-    println!("{}", Message::BaseResult(base_rate));
-    println!("{}", Message::AdjustedResult(adjusted_rate));
+    println!("{}", Message::InputRate(input_rate));
+    println!("{}", Message::InputPrice(input_price));
+    print!("{}", Message::InputLeverage(&leverage));
+    println!("{}", Message::BaseResult(recovery_rate));
+    println!("{}", Message::AdjustedResult(recovery_rate / leverage.value()));
     println!("{}", Message::PriceResult(target_stock_price));
+}
+
+pub fn truncate_tdp(user_input:f64) -> String {
+    /* 
+    f64 값을 받아 format(:.2)를 적용한 값을 반환한다.
+     */
+    format!("{:.2}", user_input)
 }
 
 impl fmt::Display for Leverage {
@@ -39,7 +52,8 @@ impl Sign {
         }
     }
 }
-impl fmt::Display for Message {
+
+impl<'a> fmt::Display for Message<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Message::StartGuide => write!(
@@ -64,9 +78,17 @@ impl fmt::Display for Message {
             Message::InvaildNumber => write!(f, "숫자를 입력해주세요."),
             Message::InvaildRange => write!(f, "유효한 범위내에서 입력해주세요."), // 퍼센테이지, 가격 따로 함수 만들기
             Message::InvaildChoice => write!(f, "보기중 하나를 선택해주세요."),
-            Message::EnteredValue => write!(f, "입력한 값"),
-
+            Message::EnteredValue => write!(f, "입력한 값"),    
+        
             Message::ResultGuide => write!(f, "계산 결과\n"),
+            /* 
+                1. 손실율 InputLossRate
+                2. 본주 CurrentPrice-> 목표 TargetPrice
+             */
+
+            Message::InputRate(input_rate) => write!(f, "-> 1. 입력한 손실율 : {}", truncate_tdp(*input_rate)),
+            Message::InputPrice(input_price) => write!(f, "-< 2. 입력한 가격 : {}", truncate_tdp(*input_price)),
+            Message::InputLeverage(leverage) => write!(f, "입력한 배율 {}", leverage),
             Message::BaseResult(base_rate) => write!(
                 f,
                 "-> 1. 필요 회복율 : {}%",

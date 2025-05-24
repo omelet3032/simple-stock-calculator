@@ -23,7 +23,7 @@ pub enum Sign {
 }
 
 
-pub enum Message {
+pub enum Message<'a> {
     StartGuide,
 
     InvaildNumber,
@@ -39,12 +39,13 @@ pub enum Message {
     EnterStockPrice,
 
     ResultGuide,
+
+    InputRate(f64),
+    InputPrice(f64),
+    InputLeverage(&'a Leverage),
+
     BaseResult(f64),
     AdjustedResult(f64),
     PriceResult(f64),
 }
 
-pub struct RecoveryRate {
-    pub recovery_rate: f64,
-    pub with_leverage: f64,
-}
