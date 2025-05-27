@@ -1,6 +1,6 @@
 [package]
 name = "simple-stock-calculator"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 description = "A simple stock calculator(calculating recovery rate)"
 license = "MIT"
