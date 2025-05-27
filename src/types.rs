@@ -19,33 +19,32 @@ impl Leverage {
 
 pub enum Sign {
     Doller,
-    Percentage,
+    Won,
 }
 
-
-pub enum Message {
+pub enum Guide {
     StartGuide,
+    EnteredValue,
+    Warning,
+    ResultGuide(f64, f64, Leverage, f64, f64),
+    Exit,
+}
 
+pub enum Menu {
+    SelectPosition,
+    SelectLeverage,
+    EnterLossRate,
+    EnterStockPrice,
+}
+
+pub enum Invaild {
     InvaildNumber,
     InvaildRange,
     InvaildChoice,
-
-    EnteredValue,
-
-    SelectPosition,
-    SelectLeverage,
-
-    EnterLossRate,
-    EnterStockPrice,
-
-    ResultGuide,
-
-    InputRate(f64),
-    InputPrice(f64),
-    InputLeverage(Leverage),
-
-    BaseResult(f64),
-    AdjustedResult(f64),
-    PriceResult(f64),
+    InvaildYn,
 }
-
+pub enum Message {
+    GuideMessage(Guide),
+    MenuMessage(Menu),
+    InvaildMessage(Invaild),
+}
