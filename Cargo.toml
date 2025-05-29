@@ -9,6 +9,7 @@ homepage = "https://github.com/omelet3032/simple-stock-calculator"
 repository = "https://github.com/omelet3032/simple-stock-calculator"
 
 [dependencies]
+proptest = "1.0.0"
 
 
 [package.metadata.rpm]
