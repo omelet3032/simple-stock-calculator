@@ -9,7 +9,7 @@ pub enum Leverage {
 }
 
 impl Leverage {
-    pub fn value(&self) -> i32 {
+    pub fn value(&self) -> i64 {
         match self {
             Leverage::Daily2x => 2,
             Leverage::Daily3x => 3,

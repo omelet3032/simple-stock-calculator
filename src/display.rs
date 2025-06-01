@@ -109,9 +109,9 @@ impl fmt::Display for Message {
             현재 주가는 '{:.2}'이므로 목표 주가는 '{:.2}'입니다.
 ",
                 loss_rate,
-                recovery_rate * 100.0,
+                recovery_rate,
                 leverage,
-                (recovery_rate / leverage.value()) * 100.0,
+                (recovery_rate / leverage.value() as f64),
                 current_price,
                 target_price
             ),
