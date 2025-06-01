@@ -31,6 +31,11 @@ fn main() {
             target_stock_price, // i64
         );
 
+        /* 
+            main.rs 앱 실행부 세분화하자
+            print_result 파라미터는 튜플로 전달?
+         */
+
         if select_exit() { break } else { continue }
     }
 }

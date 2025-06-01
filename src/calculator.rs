@@ -11,36 +11,23 @@ pub fn calculate_target_stock_price(
     let stock_price_bp: i64 = convert_stock_price_to_bp(user_entered_stock_price);
 
     let recovery_rate_bp_scaled: i64 = (RATE_SCALE * MASTER_PRICISION_SCALE)
-        // + ((required_recovery_rate_bp * MASTER_PRICISION_SCALE + (leverage.value() / 2)) / leverage.value());
-        + (required_recovery_rate_bp * MASTER_PRICISION_SCALE) / leverage.value();
-        // + (((required_recovery_rate_bp * MASTER_PRICISION_SCALE) + MASTER_PRICISION_SCALE) / leverage.value());
-
-    // 정밀도 더 향상하자 recovery_rate_bp : 11666 -> 11667
-
-    // let test = (required_recovery_rate_bp * MASTER_PRICISION_SCALE + (leverage.value() / 2)) / leverage.value();
-    // println!("test : {}", test);    
+        // + (required_recovery_rate_bp * MASTER_PRICISION_SCALE + (leverage.value() / 2)) / leverage.value();
+        + ((required_recovery_rate_bp + leverage.value() / 2) * MASTER_PRICISION_SCALE) / leverage.value();
 
     match position {
         Position::Long => {
-            let target_price_bp: i64 =
-                if let Some(price) = stock_price_bp.checked_mul(recovery_rate_bp_scaled) {
-                    // let price_scaled = price * PRICE_SCALE;
-                    // let decoupled_price_scale = MASTER_PRICISION_SCALE / PRICE_SCALE;
-                    // price * decoupled_price_scale
-                    // price / (MASTER_PRICISION_SCALE * PRICE_SCALE * RATE_SCALE)
-                    // price / (MASTER_PRICISION_SCALE * PRICE_SCALE)
-                    // price / MASTER_PRICISION_SCALE
-                    price / (MASTER_PRICISION_SCALE * RATE_SCALE)
+            let target_price_bp: i128 =
+                if let Some(price) = (stock_price_bp as i128).checked_mul(recovery_rate_bp_scaled as i128) {
+                    // price / (MASTER_PRICISION_SCALE * RATE_SCALE)
+                    price  
                 } else {
                     panic!("Over Flow!!");
                 };
-
-            // target_price_bp as f64
-            // target_price_bp as f64 / RATE_SCALE as f64 // 54166.25
-            target_price_bp as f64 / PRICE_SCALE as f64 // 54166.25
+            let target_price:i128 = target_price_bp / (MASTER_PRICISION_SCALE as i128 * RATE_SCALE as i128);
+            // target_price_bp as f64 / PRICE_SCALE as f64 
+            target_price as f64 / PRICE_SCALE as f64 
         }
         Position::Short => {
-            // stock_price_bp * (RATE_SCALE - (required_recovery_rate_bp + 1) / leverage.value())
             100.0
         }
     }
