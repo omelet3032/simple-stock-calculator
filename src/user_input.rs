@@ -31,8 +31,9 @@ pub fn enter_loss_rate() -> f64 {
     get_input_rate(Message::MenuMessage(EnterLossRate))
 }
 
-pub fn enter_stock_price() -> f64 {
-    get_input_price(Message::MenuMessage(EnterStockPrice), Sign::Doller)
+pub fn enter_stock_price(country:Country) -> f64 {
+    // get_input_price(Message::MenuMessage(EnterStockPrice), Sign::Doller)
+    get_input_price(Message::MenuMessage(EnterStockPrice), country) 
 }
 
 pub fn select_exit() -> bool {

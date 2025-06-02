@@ -1,8 +1,10 @@
 use super::constraints::{MASTER_PRICISION_SCALE, PRICE_SCALE, RATE_SCALE};
 use super::types::Leverage;
 use super::types::Position;
+// use super::types::Country;
 
 pub fn calculate_target_stock_price(
+    // country:Country,
     position: Position,
     leverage: Leverage,
     required_recovery_rate_bp: i64,
@@ -14,7 +16,7 @@ pub fn calculate_target_stock_price(
         + ((required_recovery_rate_bp + leverage.value() / 2) * MASTER_PRICISION_SCALE)
             / leverage.value();
 
-    match position {
+    let target_price:f64 = match position {
         Position::Long => {
             let target_price_bp: i128 = if let Some(price) =
                 (stock_price_bp as i128).checked_mul(recovery_rate_bp_scaled as i128)
@@ -30,7 +32,15 @@ pub fn calculate_target_stock_price(
             target_price as f64 / PRICE_SCALE as f64
         }
         Position::Short => 100.0,
-    }
+    };
+
+    target_price
+
+    // match country {
+    //     Country::KR => {
+    //         target_price.round() as i64
+    //     }
+    // }
 }
 
 /*
