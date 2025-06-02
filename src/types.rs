@@ -1,3 +1,7 @@
+pub enum Country {
+    KR, // South Korea
+    US, // Unite states of america
+}
 pub enum Position {
     Long,
     Short,
@@ -31,6 +35,7 @@ pub enum Guide {
 }
 
 pub enum Menu {
+    SelectCountry,
     SelectPosition,
     SelectLeverage,
     EnterLossRate,

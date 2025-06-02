@@ -1,7 +1,15 @@
-mod input;
+pub mod input;
 use input::*;
 
-use super::types::{Leverage, Menu::*, Message, Position, Sign, Guide::Exit};
+use super::types::{Country, Leverage, Menu::*, Message, Position, Sign, Guide::Exit};
+
+pub fn select_country() -> Country {
+    get_input_select(Message::MenuMessage(SelectCountry), |c| match c {
+        "1" => Some(Country::KR),
+        "2" => Some(Country::US),
+        _ => None,
+    })
+}
 
 pub fn select_position() -> Position {
     get_input_select(Message::MenuMessage(SelectPosition), |p| match p {

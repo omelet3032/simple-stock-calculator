@@ -38,7 +38,7 @@ fn test_convert_stock_price_to_bp() {
 #[test]
 fn test_calculate_required_recovery_rate() {
 
-    let (result1, result2) = calculate_required_recovery_rate(70.00);
+    let (result1, result2) = calculate_required_recovery_rate(99.00);
 
     let expected1 = 233.33;
     let expected2 = 23333;
@@ -75,14 +75,22 @@ fn test_calculate_required_recovery_rate() {
     }
 } */
 #[test]
+#[should_panic(expected = "Over Flow in calculate_target_stock_price: intermediate product exceeds i128 max!")] // gemini
 fn test_calculate_target_stock_price() {
 
-    let result:f64 = calculate_target_stock_price(Position::Long, Leverage::Daily2x, 23333, 250.00);
+    let result1:f64 = calculate_target_stock_price(Position::Long, Leverage::Daily2x, 23333, 250.00);
 
     let expected:f64 = 541.67;
 
-    assert_eq!(result, expected);
+    let very_large_stock_price = 1_000_000_000_000_000_000_000_000_000_000.0; // 10^30
+    let very_large_recovery_rate_bp:i64 = 9_000_000_000_000_000_000;
 
+    assert_eq!(result1, expected);
+
+    // let result2 = calculate_target_stock_price(Position::Long, Leverage::Daily2x, 990000, 1000000.0);
+    let result2 = calculate_target_stock_price(Position::Long, Leverage::Daily2x,very_large_recovery_rate_bp,very_large_stock_price);
+
+    assert!(result2 > EPSILON);
 
 }
 

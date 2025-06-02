@@ -11,27 +11,34 @@ pub fn calculate_target_stock_price(
     let stock_price_bp: i64 = convert_stock_price_to_bp(user_entered_stock_price);
 
     let recovery_rate_bp_scaled: i64 = (RATE_SCALE * MASTER_PRICISION_SCALE)
-        // + (required_recovery_rate_bp * MASTER_PRICISION_SCALE + (leverage.value() / 2)) / leverage.value();
-        + ((required_recovery_rate_bp + leverage.value() / 2) * MASTER_PRICISION_SCALE) / leverage.value();
+        + ((required_recovery_rate_bp + leverage.value() / 2) * MASTER_PRICISION_SCALE)
+            / leverage.value();
 
     match position {
         Position::Long => {
-            let target_price_bp: i128 =
-                if let Some(price) = (stock_price_bp as i128).checked_mul(recovery_rate_bp_scaled as i128) {
-                    // price / (MASTER_PRICISION_SCALE * RATE_SCALE)
-                    price  
-                } else {
-                    panic!("Over Flow!!");
-                };
-            let target_price:i128 = target_price_bp / (MASTER_PRICISION_SCALE as i128 * RATE_SCALE as i128);
-            // target_price_bp as f64 / PRICE_SCALE as f64 
-            target_price as f64 / PRICE_SCALE as f64 
+            let target_price_bp: i128 = if let Some(price) =
+                (stock_price_bp as i128).checked_mul(recovery_rate_bp_scaled as i128)
+            {
+                // price / (MASTER_PRICISION_SCALE * RATE_SCALE)
+                price
+            } else {
+                panic!("Over Flow!!");
+            };
+            let target_price: i128 =
+                target_price_bp / (MASTER_PRICISION_SCALE as i128 * RATE_SCALE as i128);
+            // target_price_bp as f64 / PRICE_SCALE as f64
+            target_price as f64 / PRICE_SCALE as f64
         }
-        Position::Short => {
-            100.0
-        }
+        Position::Short => 100.0,
     }
 }
+
+/*
+        let recovery_rate_bp_scaled: i64 = (RATE_SCALE * MASTER_PRICISION_SCALE)
+       + ((required_recovery_rate_bp + leverage.value() / 2) * MASTER_PRICISION_SCALE) / leverage.value();
+*/
+
+pub fn calculate_leveraged_required_recovery_rate() {}
 
 pub fn calculate_required_recovery_rate(user_entered_loss_rate: f64) -> (f64, i64) {
     let loss_rate_bp = convert_loss_rate_to_bp(user_entered_loss_rate); // 7000

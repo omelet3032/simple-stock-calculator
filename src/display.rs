@@ -1,7 +1,10 @@
 use std::fmt::{self};
 
-use super::types::{Position, Leverage, Sign};
-use super::types::{Message, Guide::*, Menu::*, Invaild::*};
+use crate::types::Country;
+
+use super::types::{Guide::*, Invaild::*, Menu::*, Message};
+use super::types::{Leverage, Position, Sign};
+// use super::calculator::c
 
 pub fn print_start() {
     println!("{}", Message::GuideMessage(StartGuide));
@@ -25,6 +28,15 @@ pub fn print_result(
             target_stock_price
         ))
     );
+}
+
+impl fmt::Display for Country {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Country::KR => write!(f, "South Korea"),
+            Country::US => write!(f, "USA"),
+        }
+    }
 }
 
 impl fmt::Display for Leverage {
@@ -66,9 +78,7 @@ impl fmt::Display for Message {
             이 앱을 사용해보세요.\n\
             ---------------------\n"
             ),
-            Message::GuideMessage(Exit) => write!(f, 
-            "종료하시겠습니까? (Y/n)"
-            ),
+            Message::GuideMessage(Exit) => write!(f, "종료하시겠습니까? (Y/n)"),
             Message::GuideMessage(Warning) => write!(
                 f,
                 "---------------------\n\
@@ -79,19 +89,24 @@ impl fmt::Display for Message {
             ---------------------\n"
             ),
 
+            Message::MenuMessage(SelectCountry) => {
+                write!(f, "1. 국가를 선택해주세요.\n\n1) KR, 2)US")
+            }
             Message::MenuMessage(SelectPosition) => {
-                write!(f, "1. 포지션을 선택해주세요.\n\n1) Long, 2) Short")
+                write!(f, "2. 포지션을 선택해주세요.\n\n1) Long, 2) Short")
             }
             Message::MenuMessage(SelectLeverage) => {
-                write!(f, "2. 배율을 선택해주세요.\n\n1) 2X 2) 3X")
+                write!(f, "3. 배율을 선택해주세요.\n\n1) 2X 2) 3X")
             }
-            Message::MenuMessage(EnterLossRate) => write!(f, "3. 손실율을 입력해주세요."),
-            Message::MenuMessage(EnterStockPrice) => write!(f, "4. 본주 가격을 입력해주세요."),
+            Message::MenuMessage(EnterLossRate) => write!(f, "4. 손실율을 입력해주세요."),
+            Message::MenuMessage(EnterStockPrice) => write!(f, "5. 본주 가격을 입력해주세요."),
 
             Message::InvaildMessage(InvaildNumber) => write!(f, "숫자를 입력해주세요."),
             Message::InvaildMessage(InvaildRange) => write!(f, "유효한 범위내에서 입력해주세요."), // 퍼센테이지, 가격 따로 함수 만들기
             Message::InvaildMessage(InvaildChoice) => write!(f, "보기중 하나를 선택해주세요."),
-            Message::InvaildMessage(InvaildYn) => write!(f, "Y 또는 n을 입력해주세요.(대소문자 유의)"),
+            Message::InvaildMessage(InvaildYn) => {
+                write!(f, "Y 또는 n을 입력해주세요.(대소문자 유의)")
+            }
             Message::GuideMessage(EnteredValue) => write!(f, "입력한 값"),
 
             Message::GuideMessage(ResultGuide(
