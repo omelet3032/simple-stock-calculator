@@ -57,7 +57,7 @@ pub fn get_input_rate(prompt: Message) -> f64 {
     
     사용자가 원 단위 입력시 1,000식으로 콤마를 입력할 수도 있겠네.. 아닌가?
 */
-pub fn get_input_price(prompt: Message, country: Country) -> f64 {
+pub fn get_input_price(prompt: Message, country: &Country) -> f64 {
     loop {
         println!("{}", prompt);
 

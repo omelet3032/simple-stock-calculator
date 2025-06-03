@@ -12,7 +12,7 @@ pub fn print_start() {
 }
 
 pub fn print_result(
-    // country:Country,
+    country:Country,
     loss_rate: f64,
     current_stock_price: f64,
     leverage: Leverage,

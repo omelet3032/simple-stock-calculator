@@ -11,7 +11,7 @@ fn main() {
 
         let loss_rate = enter_loss_rate();
 
-        let current_stock_price = enter_stock_price(country);
+        let current_stock_price = enter_stock_price(&country);
         //  생각해보면 회복율 계산을 외부로 노출할 필요 없다.
         //  내부 계산용으로 쓰고 출력.. 아닌가
         // 노출할 필요가 있기도 하고..
@@ -34,7 +34,7 @@ fn main() {
             calculate_target_stock_price(position, leverage, required_recovery_rate_bp, current_stock_price);
 
         print_result(
-            // country,
+            country,
             loss_rate, //f64
             current_stock_price, //f64
             leverage, // Leverage
