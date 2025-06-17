@@ -1,7 +1,9 @@
 pub mod input;
 use input::*;
 
-use super::types::{Country, Leverage, Menu::*, Message, Position, Sign, Guide::Exit};
+use crate::types::UserInputPrice;
+
+use super::types::{Country, Leverage, Menu::*, Message, Position, Guide::Exit};
 
 pub fn select_country() -> Country {
     get_input_select(Message::MenuMessage(SelectCountry), |c| match c {
@@ -31,9 +33,10 @@ pub fn enter_loss_rate() -> f64 {
     get_input_rate(Message::MenuMessage(EnterLossRate))
 }
 
-pub fn enter_stock_price(country:&Country) -> f64 {
-    // get_input_price(Message::MenuMessage(EnterStockPrice), Sign::Doller)
-    get_input_price(Message::MenuMessage(EnterStockPrice), country) 
+pub fn enter_stock_price(country:&Country) -> UserInputPrice {
+    let user_input_price = get_input_country(Message::MenuMessage(EnterStockPrice), country);
+    let stock_price = get_input_price(user_input_price);
+    stock_price
 }
 
 pub fn select_exit() -> bool {

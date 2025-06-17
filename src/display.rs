@@ -3,8 +3,7 @@ use std::fmt::{self};
 use crate::types::Country;
 
 use super::types::{Guide::*, Invaild::*, Menu::*, Message};
-use super::types::{Leverage, Position, Sign};
-// use super::calculator::c
+use super::types::{Leverage, Position, CurrencySign};
 
 pub fn print_start() {
     println!("{}", Message::GuideMessage(StartGuide));
@@ -12,7 +11,7 @@ pub fn print_start() {
 }
 
 pub fn print_result(
-    country:Country,
+    // country:Country,
     loss_rate: f64,
     current_stock_price: f64,
     leverage: Leverage,
@@ -58,11 +57,11 @@ impl fmt::Display for Position {
     }
 }
 
-impl Sign {
+impl CurrencySign {
     pub fn format_value(&self, value: f64) -> String {
         match self {
-            Sign::Doller => format!("${}", value),
-            Sign::Won => format!("{}원", value),
+            CurrencySign::Doller => format!("${}", value),
+            CurrencySign::Won => format!("{}원", value),
         }
     }
 }

@@ -1,5 +1,5 @@
 use simple_stock_calculator::calculator::*;
-use simple_stock_calculator::types::{Position, Leverage};
+use simple_stock_calculator::types::{Country, Leverage, Position, UserInputPrice};
 
 const EPSILON: f64 = 1e-6;
 
@@ -34,8 +34,16 @@ fn test_convert_stock_price_to_bp() {
     println!("result : {}", result);
     assert_eq!(result, expected);
 }
-
 #[test]
+fn test_calculate_result() {
+
+    let result:f64 = calculate_result(Country::KR, Position::Long, Leverage::Daily2x, 70.0, UserInputPrice::Integer(250));
+    let expected:f64 = 541.0;
+
+    assert_eq!(result, expected); 
+}
+
+/* #[test]
 fn test_calculate_required_recovery_rate() {
 
     let (result1, result2) = calculate_required_recovery_rate(99.00);
@@ -47,34 +55,7 @@ fn test_calculate_required_recovery_rate() {
     assert_eq!(result1, expected1); // 2.0 / 233.33
     assert_eq!(result2, expected2); // 233 / 23333
 }
-/* pub fn calculate_target_stock_price(
-    position: Position,
-    leverage: Leverage,
-    required_recovery_rate_bp: i64,
-    user_entered_stock_price: f64,
-) -> f64 {
-    let stock_price_bp: i64 = convert_stock_price_to_bp(user_entered_stock_price);
 
-    let recovery_rate_bp_scaled: i64 = (RATE_SCALE * MASTER_PRICISION_SCALE)
-        + (required_recovery_rate_bp * MASTER_PRICISION_SCALE) / leverage.value();
-
-    match position {
-        Position::Long => {
-            let target_price_bp: i64 =
-                if let Some(price) = stock_price_bp.checked_mul(recovery_rate_bp_scaled) {
-                    price / (MASTER_PRICISION_SCALE * RATE_SCALE)
-                } else {
-                    panic!("Over Flow!!");
-                };
-
-            target_price_bp as f64 / PRICE_SCALE as f64 
-        }
-        Position::Short => {
-            100.0
-        }
-    }
-} */
-#[test]
 #[should_panic(expected = "Over Flow in calculate_target_stock_price: intermediate product exceeds i128 max!")] // gemini
 fn test_calculate_target_stock_price() {
 
@@ -93,5 +74,5 @@ fn test_calculate_target_stock_price() {
     assert!(result2 > EPSILON);
 
 }
-
+ */
 

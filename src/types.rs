@@ -21,7 +21,18 @@ impl Leverage {
     }
 }
 
-pub enum Sign {
+pub struct StockInfo {
+    pub country:Country,
+    pub price:UserInputPrice,
+    // sign:CurrencySign,
+}
+
+pub enum UserInputPrice {
+    Integer(i64),
+    Float(f64),
+}
+
+pub enum CurrencySign {
     Doller,
     Won,
 }

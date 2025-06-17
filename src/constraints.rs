@@ -7,4 +7,4 @@ pub const MAX_STOCK_PRICE: f64 = 10_000_000.0;
 pub const MASTER_PRICISION_SCALE:i64 = 1_000_000_000_000;
 
 pub const RATE_SCALE:i64 = 10_000;
-pub const PRICE_SCALE:i64 = 100;
+pub const PRICE_SCALE:i64 = 100; // 원 단위에는 적용하지 않는다.
