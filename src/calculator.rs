@@ -11,25 +11,24 @@ pub fn calculate_result(
     leverage: Leverage,
     user_entered_loss_rate: f64,
     user_entered_stock_price: UserInputPrice,
-) -> f64 {
+) -> UserInputPrice {
     let loss_rate_bp: i64 = convert_loss_rate_to_bp(user_entered_loss_rate);
 
-    let stock_price: i64 = match user_entered_stock_price {
-        UserInputPrice::Integer(value) => value,
-        UserInputPrice::Float(value) => convert_stock_price_to_bp(value),
-    };
+    let stock_price_bp:i64 = convert_stock_price_to_bp(user_entered_stock_price);
+
 
     let required_recovery_rate_bp = calculate_required_recovery_rate_bp(loss_rate_bp);
     let scaled_required_recovery_rate_bp =
         scale_leveraged_required_recovery_rate_bp(required_recovery_rate_bp, leverage);
 
     let target_stock_price: f64 =
-        calculate_target_stock_price(position, stock_price, scaled_required_recovery_rate_bp);
+        calculate_target_stock_price(position, stock_price_bp, scaled_required_recovery_rate_bp);
 
-    let final_price = match country {
-        Country::KR => target_stock_price,
-        Country::US => target_stock_price as f64 / PRICE_SCALE as f64,
-    };
+    let final_price:UserInputPrice = match country {
+        // Country::KR => UserInputPrice::Integer((target_stock_price as f64 / PRICE_SCALE as f64).round() as i64), // 541.67을 as i64로 캐스팅하면 541이다.
+        Country::KR => UserInputPrice::Integer(target_stock_price as i64), // 541.67을 as i64로 캐스팅하면 541이다.
+        Country::US => UserInputPrice::Float(target_stock_price as f64 / PRICE_SCALE as f64),
+    };    
 
     return final_price;
     // target_stock_price
@@ -91,6 +90,7 @@ pub fn convert_recovery_rate_to_percentage(recovery_rate_bp: i64) -> f64 {
     required_recovery_rate
 }
 
+
 // 1
 pub fn convert_loss_rate_to_bp(user_entered_loss_rate: f64) -> i64 {
     let converted_loss_rate_for_percentage: f64 = user_entered_loss_rate / 100.0;
@@ -102,8 +102,15 @@ pub fn convert_loss_rate_to_bp(user_entered_loss_rate: f64) -> i64 {
 
 // 2
 
-pub fn convert_stock_price_to_bp(user_entered_price: f64) -> i64 {
-    let stock_price_bp: i64 = (user_entered_price * PRICE_SCALE as f64).round() as i64;
+pub fn convert_stock_price_to_bp(user_entered_price: UserInputPrice) -> i64 {
+
+    let stock_price_bp: i64 = match user_entered_price {
+        UserInputPrice::Integer(price) => price,
+        UserInputPrice::Float(price) => (price * PRICE_SCALE as f64).round() as i64,
+    };
 
     stock_price_bp
 }
+
+    
+

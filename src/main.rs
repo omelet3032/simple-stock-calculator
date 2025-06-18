@@ -1,4 +1,4 @@
-use simple_stock_calculator::{calculator::*, display::*, types::StockInfo, user_input::*};
+use simple_stock_calculator::{calculator::*, display::*, types::{StockInfo, UserInputPrice}, user_input::*};
 
 fn main() {
     loop {
@@ -21,7 +21,19 @@ fn main() {
         let target_stock_price =
             calculate_result(country, position, leverage, loss_rate, current_stock_price);
 
-        println!("{}", target_stock_price);
+        match target_stock_price {
+            UserInputPrice::Integer(value) => {
+                println!("kr_value : {}", value)
+            },
+            UserInputPrice::Float(value) => {
+                println!("us_value :{}", value)
+            }
+        };
+
+        
+        // if let UserInputPrice::Integer(value) = 
+
+        // println!("{}", target_stock_price);
         
 /*         print_result(
             loss_rate, //f64
