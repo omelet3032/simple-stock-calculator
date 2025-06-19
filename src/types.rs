@@ -6,7 +6,7 @@ pub enum Position {
     Long,
     Short,
 }
-#[derive(Copy, Clone)]
+// #[derive(Copy, Clone)]
 pub enum Leverage {
     Daily2x,
     Daily3x,
@@ -23,13 +23,13 @@ impl Leverage {
 
 pub struct StockInfo {
     pub country:Country,
-    pub price:UserInputPrice,
-    // sign:CurrencySign,
-}
-
-pub enum UserInputPrice {
-    Integer(i64),
-    Float(f64),
+    pub position:Position,
+    pub leverage:Leverage,
+    pub loss_rate:f64,
+    pub current_underlying_stock_price:f64,
+    
+    pub required_recovery_rate:f64,
+    pub target_underlying_stock_price:f64,
 }
 
 pub enum CurrencySign {
@@ -54,6 +54,7 @@ pub enum Menu {
 }
 
 pub enum Invaild {
+    InvaildInt,
     InvaildNumber,
     InvaildRange,
     InvaildChoice,

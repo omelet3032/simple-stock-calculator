@@ -1,9 +1,10 @@
 use crate::types::Guide::*;
 use crate::types::Invaild::*;
-use crate::types::UserInputPrice;
+use crate::types::StockInfo;
+// use crate::types::UserInputPrice;
 use crate::{
     constraints::{MAX_LOSS_RATE, MAX_STOCK_PRICE, MIN_LOSS_RATE, MIN_STOCK_PRICE},
-    types::{Country, CurrencySign, Message, StockInfo},
+    types::{Country, CurrencySign, Message},
 };
 
 pub fn get_input_select<T: std::fmt::Display>(prompt: Message, parser: fn(&str) -> Option<T>) -> T {
@@ -48,78 +49,119 @@ pub fn get_input_rate(prompt: Message) -> f64 {
     }
 }
 
-pub fn get_input_country(prompt: Message, country: &Country) -> UserInputPrice {
+pub fn parse_input_price(prompt: Message, country: &Country) -> f64 {
     loop {
         println!("{}", prompt);
 
         let input = user_input();
 
-        match country {
+        let price_parsed_f64 = match country {
             Country::KR => match input.parse::<i64>() {
-                Ok(value) => {
-                    println!("\n");
-                    return UserInputPrice::Integer(value);
-                }
+                Ok(value) => value as f64,
                 Err(_) => {
-                    println!("에러");
+                    println!("{}", Message::InvaildMessage(InvaildInt));
                     continue;
                 }
             },
             Country::US => match input.parse::<f64>() {
-                Ok(value) => {
-                    println!("\n");
-                    return UserInputPrice::Float(value);
-                }
+                Ok(value) => value,
                 Err(_) => {
-                    println!("에러1");
+                    println!("{}", Message::InvaildMessage(InvaildNumber));
                     continue;
                 }
             },
         };
-    }
-}
 
-pub fn get_input_price(price: UserInputPrice) -> UserInputPrice {
-    loop {
-        
-        match price {
-            UserInputPrice::Integer(value) => {
-                if (value as f64) > MIN_STOCK_PRICE && (value as f64) < MAX_STOCK_PRICE {
-                    println!(
-                        "{}: {}\n",
-                        Message::GuideMessage(EnteredValue),
-                        CurrencySign::Won.format_value(value as f64)
-                    );
-                    return UserInputPrice::Integer(value);
-                } else {
-                    println!(
-                        "{} ({} ~ {})",
-                        Message::InvaildMessage(InvaildRange),
-                        CurrencySign::Won.format_value(MIN_STOCK_PRICE),
-                        CurrencySign::Won.format_value(MAX_STOCK_PRICE)
-                    );
-                    println!("{}: {}\n", Message::GuideMessage(EnteredValue), value);
-                }
-            }
-            UserInputPrice::Float(value) => {
-                if (value as f64) > MIN_STOCK_PRICE && (value as f64) < MAX_STOCK_PRICE {
-                    println!(
-                        "{}: {}\n",
-                        Message::GuideMessage(EnteredValue),
-                        CurrencySign::Doller.format_value(value as f64)
-                    );
-                    return UserInputPrice::Float(value);
-                } else {
-                    println!(
-                        "{} ({} ~ {})",
-                        Message::InvaildMessage(InvaildRange),
-                        CurrencySign::Doller.format_value(MIN_STOCK_PRICE),
-                        CurrencySign::Doller.format_value(MAX_STOCK_PRICE)
-                    );
-                    println!("{}: {}\n", Message::GuideMessage(EnteredValue), value);
-                }
-            }
+        let is_in_vaild_range =
+            price_parsed_f64 > MIN_STOCK_PRICE && price_parsed_f64 < MAX_STOCK_PRICE;
+
+        let currency_sign = match country {
+            Country::KR => CurrencySign::Won,
+            Country::US => CurrencySign::Doller,
         };
+
+        if is_in_vaild_range {
+            println!(
+                "{}: {}\n",
+                Message::GuideMessage(EnteredValue),
+                currency_sign.format_value(price_parsed_f64),
+            );
+            return price_parsed_f64;
+        } else {
+            println!("{}", Message::InvaildMessage(InvaildRange));
+            println!(
+                "({} ~ {})",
+                currency_sign.format_value(MIN_STOCK_PRICE),
+                currency_sign.format_value(MAX_STOCK_PRICE)
+            );
+            println!(
+                "{}: {}\n",
+                Message::GuideMessage(EnteredValue),
+                price_parsed_f64
+            );
+            continue;
+        }
+
+        // let final_price = match country {
+        //     Country::KR => {
+        //         if price_parsed_f64 > MIN_STOCK_PRICE && price_parsed_f64 < MAX_STOCK_PRICE {
+        //             println!(
+        //                 "{}: {}\n",
+        //                 Message::GuideMessage(EnteredValue),
+        //                 CurrencySign::Won.format_value(price_parsed_f64),
+        //             );
+        //             price_parsed_f64
+        //         } el println!("{}", Message::InvaildMessage(InvaildRange));
+        //             println!(
+        //                 "({} ~ {})",
+        //                 CurrencySign::Won.format_value(MIN_STOCK_PRICE),
+        //                 CurrencySign::Won.format_value(MAX_STOCK_PRICE)
+        //             );
+        //             println!(
+        //                 "{}: {}\n",
+        //                 Message::GuideMessage(EnteredValue),
+        //                 price_parsed_f64
+        //             );
+        //             continue;se {
+        //             println!("{}", Message::InvaildMessage(InvaildRange));
+        //             println!(
+        //                 "({} ~ {})",
+        //                 CurrencySign::Won.format_value(MIN_STOCK_PRICE),
+        //                 CurrencySign::Won.format_value(MAX_STOCK_PRICE)
+        //             );
+        //             println!(
+        //                 "{}: {}\n",
+        //                 Message::GuideMessage(EnteredValue),
+        //                 price_parsed_f64
+        //             );
+        //             continue;
+        //         }
+        //     }
+        //     Country::US => {
+        //         if price_parsed_f64 > MIN_STOCK_PRICE && price_parsed_f64 < MAX_STOCK_PRICE {
+        //             println!(
+        //                 "{}: {}\n",
+        //                 Message::GuideMessage(EnteredValue),
+        //                 CurrencySign::Doller.format_value(price_parsed_f64),
+        //             );
+        //             price_parsed_f64
+        //         } else {
+        //             println!("{}", Message::InvaildMessage(InvaildRange));
+        //             println!(
+        //                 "({} ~ {})",
+        //                 CurrencySign::Doller.format_value(MIN_STOCK_PRICE),
+        //                 CurrencySign::Doller.format_value(MAX_STOCK_PRICE)
+        //             );
+        //             println!(
+        //                 "{}: {}\n",
+        //                 Message::GuideMessage(EnteredValue),
+        //                 price_parsed_f64
+        //             );
+        //             continue;
+        //         }
+        //     }
+        // };
+
     }
 }
 

@@ -60,8 +60,8 @@ impl fmt::Display for Position {
 impl CurrencySign {
     pub fn format_value(&self, value: f64) -> String {
         match self {
-            CurrencySign::Doller => format!("${}", value),
             CurrencySign::Won => format!("{}원", value),
+            CurrencySign::Doller => format!("${}", value),
         }
     }
 }
@@ -101,6 +101,7 @@ impl fmt::Display for Message {
             Message::MenuMessage(EnterLossRate) => write!(f, "4. 손실율을 입력해주세요."),
             Message::MenuMessage(EnterStockPrice) => write!(f, "5. 본주 가격을 입력해주세요."),
 
+            Message::InvaildMessage(InvaildInt) => write!(f, "정수를 입력해주세요"),
             Message::InvaildMessage(InvaildNumber) => write!(f, "숫자를 입력해주세요."),
             Message::InvaildMessage(InvaildRange) => write!(f, "유효한 범위내에서 입력해주세요."), // 퍼센테이지, 가격 따로 함수 만들기
             Message::InvaildMessage(InvaildChoice) => write!(f, "보기중 하나를 선택해주세요."),

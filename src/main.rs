@@ -1,4 +1,9 @@
-use simple_stock_calculator::{calculator::*, display::*, types::{StockInfo, UserInputPrice}, user_input::*};
+use simple_stock_calculator::{
+    calculator::*,
+    display::*,
+    types::{Country, StockInfo},
+    user_input::*,
+};
 
 fn main() {
     loop {
@@ -12,41 +17,15 @@ fn main() {
         let loss_rate = enter_loss_rate();
 
         let current_stock_price = enter_stock_price(&country);
-       
-        // let user_stock_info:StockInfo = StockInfo {
-        //     country: country,
-        //     price: current_stock_price,
-        // };
 
-        let target_stock_price =
+        let user_stock_info =
             calculate_result(country, position, leverage, loss_rate, current_stock_price);
 
-        match target_stock_price {
-            UserInputPrice::Integer(value) => {
-                println!("kr_value : {}", value)
-            },
-            UserInputPrice::Float(value) => {
-                println!("us_value :{}", value)
-            }
-        };
+        // print_result(user_stock_info);
 
-        
-        // if let UserInputPrice::Integer(value) = 
-
-        // println!("{}", target_stock_price);
-        
-/*         print_result(
-            loss_rate, //f64
-            current_stock_price, //f64
-            leverage, // Leverage
-            required_recovery_rate, // f64
-            target_stock_price, // i64
-        ); */
-
-        /* 
-            main.rs 앱 실행부 세분화하자
-            print_result 파라미터는 튜플로 전달?
-         */
+        /*
+           main.rs 앱 실행부 세분화하자
+        */
 
         if select_exit() { break } else { continue }
     }
