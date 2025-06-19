@@ -3,7 +3,7 @@ use std::fmt::{self};
 use crate::types::Country;
 
 use super::types::{Guide::*, Invaild::*, Menu::*, Message};
-use super::types::{Leverage, Position, CurrencySign};
+use super::types::{Leverage, Position, CurrencySign, StockInfo};
 
 pub fn print_start() {
     println!("{}", Message::GuideMessage(StartGuide));
@@ -11,21 +11,16 @@ pub fn print_start() {
 }
 
 pub fn print_result(
-    // country:Country,
-    loss_rate: f64,
-    current_stock_price: f64,
-    leverage: Leverage,
-    recovery_rate: f64,
-    target_stock_price: f64,
+    user_stock_info:StockInfo
 ) {
     println!(
         "{}",
         Message::GuideMessage(ResultGuide(
-            loss_rate,
-            recovery_rate,
-            leverage,
-            current_stock_price,
-            target_stock_price
+            user_stock_info.loss_rate,
+            user_stock_info.required_recovery_rate,
+            user_stock_info.leverage,
+            user_stock_info.current_underlying_stock_price,
+            user_stock_info.target_underlying_stock_price
         ))
     );
 }
@@ -112,10 +107,10 @@ impl fmt::Display for Message {
 
             Message::GuideMessage(ResultGuide(
                 loss_rate,
-                recovery_rate,
+                required_recovery_rate,
                 leverage,
-                current_price,
-                target_price,
+                current_underlying_stock_price,
+                target_underlying_stock_price,
             )) => write!(
                 f,
                 "계산 결과\n\n\
@@ -125,11 +120,11 @@ impl fmt::Display for Message {
             현재 주가는 '{:.2}'이므로 목표 주가는 '{:.2}'입니다.
 ",
                 loss_rate,
-                recovery_rate,
+                required_recovery_rate,
                 leverage,
-                (recovery_rate / leverage.value() as f64),
-                current_price,
-                target_price
+                (required_recovery_rate / leverage.value() as f64),
+                current_underlying_stock_price,
+                target_underlying_stock_price
             ),
         }
     }

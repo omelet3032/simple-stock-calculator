@@ -11,7 +11,6 @@ use simple_stock_calculator::types::{Country, Leverage, Position, StockInfo};
 
 */
 
-
 #[test]
 fn test_convert_recovery_rate_to_percentage() {
     let result = convert_recovery_rate_to_percentage(23333);
@@ -34,23 +33,15 @@ fn test_convert_stock_price_to_bp() {
     let expected1: i64 = 250;
     println!("result1 : {}", result1);
     assert_eq!(result1, expected1);
-
-
 }
 
 #[test]
 fn test_calculate_result_kr() {
-    let price: StockInfo = calculate_result(
-        Country::KR,
-        Position::Long,
-        Leverage::Daily2x,
-        70.0,
-        250.0,
-    );
+    let price: StockInfo =
+        calculate_user_stock_info(Country::KR, Position::Long, Leverage::Daily2x, 70.0, 250.0);
 
     let result = price.target_underlying_stock_price;
     let expected: f64 = 542.0;
-
 
     assert_eq!(result, expected);
 }
@@ -67,7 +58,6 @@ fn test_calculate_required_recovery_rate_bp() {
 
 #[test]
 fn test_scale_leveraged_required_recovery_rate_bp() {
-
     let result = calculate_leveraged_required_recovery_rate_bp(23333, &Leverage::Daily2x);
 
     let expected = 11667;
@@ -80,7 +70,7 @@ fn test_scale_leveraged_required_recovery_rate_bp() {
 // )] // gemini
 #[test]
 fn test_calculate_target_stock_price() {
-    let result1: f64 = calculate_target_underlying_stock_price(&Position::Long, 25000,  11667);
+    let result1: f64 = calculate_target_underlying_stock_price(&Position::Long, 25000, 11667);
     // 21667000000000000
     let expected: f64 = 541.67;
 

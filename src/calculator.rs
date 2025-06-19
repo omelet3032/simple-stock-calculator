@@ -5,7 +5,7 @@ use super::types::Country;
 use super::types::Leverage;
 use super::types::Position;
 
-pub fn calculate_result(
+pub fn calculate_user_stock_info(
     country: Country,
     position: Position,
     leverage: Leverage,
@@ -32,7 +32,7 @@ pub fn calculate_result(
         Country::US => target_underlying_stock_price,
     };
 
-    let result = StockInfo {
+    let user_stock_info = StockInfo {
         country:country,
         position:position,
         leverage:leverage,
@@ -44,7 +44,7 @@ pub fn calculate_result(
 
     };
 
-    result
+    user_stock_info
 }
 
 pub fn calculate_target_underlying_stock_price(
