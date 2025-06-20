@@ -1,7 +1,6 @@
 use simple_stock_calculator::{
     calculator::*,
     display::*,
-    types::{Country, StockInfo},
     user_input::*,
 };
 
