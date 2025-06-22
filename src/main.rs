@@ -15,11 +15,11 @@ fn main() {
 
         let loss_rate = enter_loss_rate();
 
-        let current_stock_price = enter_stock_price(&country);
+        let current_underlying_stock_price = enter_stock_price(&country);
 
         // 함수명 추후 수정
         let user_stock_info =
-            calculate_user_stock_info(country, position, leverage, loss_rate, current_stock_price);
+            generate_user_stock_info(country, position, leverage, loss_rate, current_underlying_stock_price);
 
         print_result(user_stock_info);
 

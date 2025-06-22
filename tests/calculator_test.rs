@@ -38,7 +38,7 @@ fn test_convert_stock_price_to_bp() {
 #[test]
 fn test_calculate_result_kr() {
     let price: StockInfo =
-        calculate_user_stock_info(Country::KR, Position::Long, Leverage::Daily2x, 70.0, 250.0);
+        generate_user_stock_info(Country::KR, Position::Long, Leverage::Daily2x, 70.0, 250.0);
 
     let result = price.target_underlying_stock_price;
     let expected: f64 = 542.0;

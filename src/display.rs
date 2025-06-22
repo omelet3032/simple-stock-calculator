@@ -85,7 +85,7 @@ impl fmt::Display for Message {
             ),
 
             Message::MenuMessage(SelectCountry) => {
-                write!(f, "1. 국가를 선택해주세요.\n\n1) KR, 2)US")
+                write!(f, "1. 국가를 선택해주세요.\n\n1) KR, 2) US")
             }
             Message::MenuMessage(SelectPosition) => {
                 write!(f, "2. 포지션을 선택해주세요.\n\n1) Long, 2) Short")

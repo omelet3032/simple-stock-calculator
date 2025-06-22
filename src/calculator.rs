@@ -5,7 +5,7 @@ use super::types::Country;
 use super::types::Leverage;
 use super::types::Position;
 
-pub fn calculate_user_stock_info(
+pub fn generate_user_stock_info(
     country: Country,
     position: Position,
     leverage: Leverage,
