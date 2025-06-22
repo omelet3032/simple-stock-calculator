@@ -1,5 +1,5 @@
-use crate::types::Guide::*;
-use crate::types::Invaild::*;
+use crate::types::Guide::EnteredValue;
+use crate::types::Invalid::{InvalidChoice, InvalidInt, InvalidNumber, InvalidRange, InvalidYn};
 use crate::{
     constraints::{MAX_LOSS_RATE, MAX_STOCK_PRICE, MIN_LOSS_RATE, MIN_STOCK_PRICE},
     types::{Country, CurrencySign, Message},
@@ -15,7 +15,7 @@ pub fn get_input_select<T: std::fmt::Display>(prompt: Message, parser: fn(&str) 
             println!("{}: {}\n", Message::GuideMessage(EnteredValue), value);
             return value;
         } else {
-            println!("{}", Message::InvaildMessage(InvaildChoice));
+            println!("{}", Message::InvalidMessage(InvalidChoice));
             println!("{}: {}\n", Message::GuideMessage(EnteredValue), input);
         }
     }
@@ -35,19 +35,19 @@ pub fn get_input_rate(prompt: Message) -> f64 {
                 } else {
                     println!(
                         "{} ({}% ~ {}%)",
-                        Message::InvaildMessage(InvaildRange),
+                        Message::InvalidMessage(InvalidRange),
                         MIN_LOSS_RATE,
                         MAX_LOSS_RATE
                     );
                     println!("{}: {}\n", Message::GuideMessage(EnteredValue), value);
                 }
             }
-            Err(_) => println!("{}", Message::InvaildMessage(InvaildNumber)),
+            Err(_) => println!("{}", Message::InvalidMessage(InvalidNumber)),
         };
     }
 }
 
-pub fn parse_input_price(prompt: Message, country: &Country) -> f64 {
+pub fn get_input_price(prompt: Message, country: &Country) -> f64 {
     loop {
         println!("{}", prompt);
 
@@ -57,14 +57,14 @@ pub fn parse_input_price(prompt: Message, country: &Country) -> f64 {
             Country::KR => match input.parse::<i64>() {
                 Ok(value) => value as f64,
                 Err(_) => {
-                    println!("{}", Message::InvaildMessage(InvaildInt));
+                    println!("{}", Message::InvalidMessage(InvalidInt));
                     continue;
                 }
             },
             Country::US => match input.parse::<f64>() {
                 Ok(value) => value,
                 Err(_) => {
-                    println!("{}", Message::InvaildMessage(InvaildNumber));
+                    println!("{}", Message::InvalidMessage(InvalidNumber));
                     continue;
                 }
             },
@@ -73,29 +73,29 @@ pub fn parse_input_price(prompt: Message, country: &Country) -> f64 {
         let is_in_vaild_range =
             price_parsed_f64 > MIN_STOCK_PRICE && price_parsed_f64 < MAX_STOCK_PRICE;
 
-        let currency_sign = match country {
+        let price = match country {
             Country::KR => CurrencySign::Won,
-            Country::US => CurrencySign::Doller,
+            Country::US => CurrencySign::Dollar,
         };
 
         if is_in_vaild_range {
             println!(
                 "{}: {}\n",
                 Message::GuideMessage(EnteredValue),
-                currency_sign.format_value(price_parsed_f64),
+                price.with_currency_sign(price_parsed_f64),
             );
             return price_parsed_f64;
         } else {
-            println!("{}", Message::InvaildMessage(InvaildRange));
+            println!("{}", Message::InvalidMessage(InvalidRange));
             println!(
                 "({} ~ {})",
-                currency_sign.format_value(MIN_STOCK_PRICE),
-                currency_sign.format_value(MAX_STOCK_PRICE)
+                price.with_currency_sign(MIN_STOCK_PRICE),
+                price.with_currency_sign(MAX_STOCK_PRICE)
             );
             println!(
                 "{}: {}\n",
                 Message::GuideMessage(EnteredValue),
-                price_parsed_f64
+                price.with_currency_sign(price_parsed_f64),
             );
             continue;
         }
@@ -103,9 +103,9 @@ pub fn parse_input_price(prompt: Message, country: &Country) -> f64 {
     }
 }
 
-pub fn get_input_exit(promt: Message) -> bool {
+pub fn get_input_exit(prompt: Message) -> bool {
     loop {
-        println!("{}", promt);
+        println!("{}", prompt);
         let input = user_input();
 
         if input.eq("Y") {
@@ -113,7 +113,7 @@ pub fn get_input_exit(promt: Message) -> bool {
         } else if input.eq("n") {
             return false;
         } else {
-            println!("{}", Message::InvaildMessage(InvaildYn));
+            println!("{}", Message::InvalidMessage(InvalidYn));
         }
     }
 }
@@ -121,5 +121,5 @@ pub fn get_input_exit(promt: Message) -> bool {
 fn user_input() -> String {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("입력 실패");
-    return input.trim().to_string();
+    input.trim().to_string()
 }

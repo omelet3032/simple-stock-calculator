@@ -2,25 +2,38 @@ use std::fmt::{self};
 
 use crate::types::Country;
 
-use super::types::{Guide::*, Invaild::*, Menu::*, Message};
-use super::types::{Leverage, Position, CurrencySign, StockInfo};
+use super::types::{CurrencySign, Leverage, Position, StockInfo};
+use super::types::{Guide::*, Invalid::*, Menu::*, Message};
 
 pub fn print_start() {
     println!("{}", Message::GuideMessage(StartGuide));
     println!("{}", Message::GuideMessage(Warning));
 }
 
-pub fn print_result(
-    user_stock_info:StockInfo
-) {
+pub fn print_result(user_stock_info: StockInfo) {
+    let underlying_stock_price = match user_stock_info.country {
+        Country::KR => CurrencySign::Won,
+        Country::US => CurrencySign::Dollar,
+    };
+
+    println!(
+        "{}",
+        Message::GuideMessage(UserStockInfo(
+            user_stock_info.country,
+            user_stock_info.loss_rate,
+            user_stock_info.leverage,
+            underlying_stock_price
+                .with_currency_sign(user_stock_info.current_underlying_stock_price),
+        ))
+    );
+    println!();
     println!(
         "{}",
         Message::GuideMessage(ResultGuide(
-            user_stock_info.loss_rate,
             user_stock_info.required_recovery_rate,
-            user_stock_info.leverage,
-            user_stock_info.current_underlying_stock_price,
-            user_stock_info.target_underlying_stock_price
+            user_stock_info.leveraged_required_recovery_rate,
+            underlying_stock_price
+                .with_currency_sign(user_stock_info.target_underlying_stock_price)
         ))
     );
 }
@@ -28,8 +41,8 @@ pub fn print_result(
 impl fmt::Display for Country {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Country::KR => write!(f, "South Korea"),
-            Country::US => write!(f, "USA"),
+            Country::KR => write!(f, "대한민국"),
+            Country::US => write!(f, "미국"),
         }
     }
 }
@@ -53,10 +66,10 @@ impl fmt::Display for Position {
 }
 
 impl CurrencySign {
-    pub fn format_value(&self, value: f64) -> String {
+    pub fn with_currency_sign(&self, value: f64) -> String {
         match self {
             CurrencySign::Won => format!("{}원", value),
-            CurrencySign::Doller => format!("${}", value),
+            CurrencySign::Dollar => format!("${}", value),
         }
     }
 }
@@ -83,6 +96,37 @@ impl fmt::Display for Message {
             2. 레버리지는 위험합니다. 자칫하면 패가망신할 수도 있으니 주의하세요.\n\
             ---------------------\n"
             ),
+            Message::GuideMessage(EnteredValue) => write!(f, "입력한 값"),
+
+            Message::GuideMessage(UserStockInfo(
+                country,
+                loss_rate,
+                leverage,
+                current_underlying_stock_price,
+            )) => write!(
+                f,
+                "--주식 정보--\n\
+            국가 : {}\n\
+            손실율 : {:.2}%\n\
+            레버리지 배율 : {}\n\
+            현재 ETF 추종 주가 : {}",
+                country, loss_rate, leverage, current_underlying_stock_price
+            ),  
+
+            Message::GuideMessage(ResultGuide(
+                required_recovery_rate,
+                leveraged_required_recovery_rate,
+                target_underlying_stock_price,
+            )) => write!(
+                f,
+                "--계산 결과--\n\
+            필요 회복율 : {}%\n\
+            필요 회복율(레버리지 배율 적용) : {}%\n\
+            원금 회복 목표 주가 : {}",
+                required_recovery_rate,
+                leveraged_required_recovery_rate,
+                target_underlying_stock_price
+            ),
 
             Message::MenuMessage(SelectCountry) => {
                 write!(f, "1. 국가를 선택해주세요.\n\n1) KR, 2) US")
@@ -96,36 +140,13 @@ impl fmt::Display for Message {
             Message::MenuMessage(EnterLossRate) => write!(f, "4. 손실율을 입력해주세요."),
             Message::MenuMessage(EnterStockPrice) => write!(f, "5. 본주 가격을 입력해주세요."),
 
-            Message::InvaildMessage(InvaildInt) => write!(f, "정수를 입력해주세요"),
-            Message::InvaildMessage(InvaildNumber) => write!(f, "숫자를 입력해주세요."),
-            Message::InvaildMessage(InvaildRange) => write!(f, "유효한 범위내에서 입력해주세요."), // 퍼센테이지, 가격 따로 함수 만들기
-            Message::InvaildMessage(InvaildChoice) => write!(f, "보기중 하나를 선택해주세요."),
-            Message::InvaildMessage(InvaildYn) => {
+            Message::InvalidMessage(InvalidInt) => write!(f, "정수를 입력해주세요"),
+            Message::InvalidMessage(InvalidNumber) => write!(f, "숫자를 입력해주세요."),
+            Message::InvalidMessage(InvalidRange) => write!(f, "유효한 범위내에서 입력해주세요."),
+            Message::InvalidMessage(InvalidChoice) => write!(f, "보기중 하나를 선택해주세요."),
+            Message::InvalidMessage(InvalidYn) => {
                 write!(f, "Y 또는 n을 입력해주세요.(대소문자 유의)")
             }
-            Message::GuideMessage(EnteredValue) => write!(f, "입력한 값"),
-
-            Message::GuideMessage(ResultGuide(
-                loss_rate,
-                required_recovery_rate,
-                leverage,
-                current_underlying_stock_price,
-                target_underlying_stock_price,
-            )) => write!(
-                f,
-                "계산 결과\n\n\
-            현재 입력하신 손실율은 '{}%' 입니다.\n\
-            '{:.2}%' 상승시 매수하신 Leverage ETF의 손실 복구가 가능합니다.\n\
-            '{}' 배율을 적용하여, ETF 추종 주가가 '{:.2}%' 상승시 원금 회복이 가능합니다.\n\
-            현재 주가는 '{:.2}'이므로 목표 주가는 '{:.2}'입니다.
-",
-                loss_rate,
-                required_recovery_rate,
-                leverage,
-                (required_recovery_rate / leverage.value() as f64),
-                current_underlying_stock_price,
-                target_underlying_stock_price
-            ),
         }
     }
 }

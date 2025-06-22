@@ -1,12 +1,11 @@
 pub enum Country {
-    KR, // South Korea
-    US, // Unite states of america
+    KR, 
+    US, 
 }
 pub enum Position {
     Long,
     Short,
 }
-// #[derive(Copy, Clone)]
 pub enum Leverage {
     Daily2x,
     Daily3x,
@@ -21,27 +20,23 @@ impl Leverage {
     }
 }
 
-pub struct StockInfo {
-    pub country:Country,
-    pub position:Position,
-    pub leverage:Leverage,
-    pub loss_rate:f64,
-    pub current_underlying_stock_price:f64,
-    
-    pub required_recovery_rate:f64,
-    pub target_underlying_stock_price:f64,
+pub enum CurrencySign {
+    Dollar,
+    Won,
 }
 
-pub enum CurrencySign {
-    Doller,
-    Won,
+pub enum Message {
+    GuideMessage(Guide),
+    MenuMessage(Menu),
+    InvalidMessage(Invalid),
 }
 
 pub enum Guide {
     StartGuide,
     EnteredValue,
     Warning,
-    ResultGuide(f64, f64, Leverage, f64, f64),
+    UserStockInfo(Country, f64, Leverage, String),
+    ResultGuide(f64, f64, String),
     Exit,
 }
 
@@ -53,15 +48,22 @@ pub enum Menu {
     EnterStockPrice,
 }
 
-pub enum Invaild {
-    InvaildInt,
-    InvaildNumber,
-    InvaildRange,
-    InvaildChoice,
-    InvaildYn,
+pub enum Invalid {
+    InvalidInt,
+    InvalidNumber,
+    InvalidRange,
+    InvalidChoice,
+    InvalidYn,
 }
-pub enum Message {
-    GuideMessage(Guide),
-    MenuMessage(Menu),
-    InvaildMessage(Invaild),
+
+pub struct StockInfo {
+    pub country: Country,
+    pub position: Position,
+    pub leverage: Leverage,
+    pub loss_rate: f64,
+    pub current_underlying_stock_price: f64,
+
+    pub required_recovery_rate: f64,
+    pub leveraged_required_recovery_rate: f64,
+    pub target_underlying_stock_price: f64,
 }
