@@ -105,7 +105,7 @@ impl fmt::Display for Message {
                 current_underlying_stock_price,
             )) => write!(
                 f,
-                "--주식 정보--\n\
+                "-- 주식 정보 --\n\
             국가 : {}\n\
             손실율 : {:.2}%\n\
             레버리지 배율 : {}\n\
@@ -119,7 +119,7 @@ impl fmt::Display for Message {
                 target_underlying_stock_price,
             )) => write!(
                 f,
-                "--계산 결과--\n\
+                "-- 계산 결과 --\n\
             필요 회복율 : {}%\n\
             필요 회복율(레버리지 배율 적용) : {}%\n\
             원금 회복 목표 주가 : {}",

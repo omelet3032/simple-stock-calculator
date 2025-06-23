@@ -12,19 +12,24 @@ pub fn generate_user_stock_info(
     user_entered_loss_rate: f64,
     user_entered_stock_price: f64,
 ) -> StockInfo {
+    
     let loss_rate_bp: i64 = convert_loss_rate_to_bp(user_entered_loss_rate);
 
     let stock_price_bp: i64 = convert_stock_price_to_bp(user_entered_stock_price);
 
-    let required_recovery_rate_bp = calculate_required_recovery_rate_bp(loss_rate_bp);
+    let required_recovery_rate_with_master_precision_scale =
+        calculate_required_recovery_rate_with_master_precision_scale(loss_rate_bp);
 
-    let leveraged_required_recovery_rate_bp =
-        calculate_leveraged_required_recovery_rate_bp(required_recovery_rate_bp, &leverage);
+    let leveraged_required_recovery_rate_with_master_precision_scale =
+        calculate_leveraged_required_recovery_rate_with_master_precision_scale(
+            required_recovery_rate_with_master_precision_scale,
+            &leverage,
+        );
 
     let target_underlying_stock_price: f64 = calculate_target_underlying_stock_price(
         &position,
         stock_price_bp,
-        leveraged_required_recovery_rate_bp,
+        leveraged_required_recovery_rate_with_master_precision_scale,
     );
 
     let target_underlying_stock_price_for_country = match country {
@@ -33,16 +38,19 @@ pub fn generate_user_stock_info(
     };
 
     let user_stock_info = StockInfo {
-        country:country,
-        position:position,
-        leverage:leverage,
-        loss_rate:user_entered_loss_rate,
-        current_underlying_stock_price:user_entered_stock_price,
+        country: country,
+        position: position,
+        leverage: leverage,
+        loss_rate: user_entered_loss_rate,
+        current_underlying_stock_price: user_entered_stock_price,
 
-        required_recovery_rate:convert_recovery_rate_to_percentage(required_recovery_rate_bp),
-        leveraged_required_recovery_rate:convert_recovery_rate_to_percentage(leveraged_required_recovery_rate_bp),
-        target_underlying_stock_price:target_underlying_stock_price_for_country
-
+        required_recovery_rate: convert_rate_to_percentage(
+            required_recovery_rate_with_master_precision_scale,
+        ),
+        leveraged_required_recovery_rate: convert_rate_to_percentage(
+            leveraged_required_recovery_rate_with_master_precision_scale,
+        ),
+        target_underlying_stock_price: target_underlying_stock_price_for_country,
     };
 
     user_stock_info
@@ -51,12 +59,12 @@ pub fn generate_user_stock_info(
 pub fn calculate_target_underlying_stock_price(
     position: &Position,
     stock_price_bp: i64,
-    leveraged_required_recovery_rate_bp: i64,
+    leveraged_required_recovery_rate_bp_with_master_precision_scale: i64,
 ) -> f64 {
-    let multiplicand = stock_price_bp;
+    let multiplicand = stock_price_bp * MASTER_PRECISION_SCALE; 
 
-    let multiplier: i128 = ((RATE_SCALE * MASTER_PRECISION_SCALE) as i128)
-        + ((leveraged_required_recovery_rate_bp * MASTER_PRECISION_SCALE) as i128);
+    let multiplier: i128 = (1 * MASTER_PRECISION_SCALE as i128)
+        + (leveraged_required_recovery_rate_bp_with_master_precision_scale as i128); 
 
     let target_underlying_stock_price: f64 = match position {
         Position::Long => {
@@ -66,55 +74,54 @@ pub fn calculate_target_underlying_stock_price(
                 } else {
                     panic!("Over Flow!!");
                 };
-            let target_underlying_stock_price_bp_unscaled_master_scale: i128 =
-                target_underlying_stock_price_bp_scaled / MASTER_PRECISION_SCALE as i128;
 
-            let target_underlying_stock_price_bp_unscaled_rate_scale: i128 =
-                target_underlying_stock_price_bp_unscaled_master_scale / RATE_SCALE as i128;
+            let target_underlying_stock_price =
+                unscale_target_underlying_stock_price(target_underlying_stock_price_bp_scaled);
 
-            let final_price =
-                target_underlying_stock_price_bp_unscaled_rate_scale as f64 / PRICE_SCALE as f64;
-
-            final_price
+            (target_underlying_stock_price * 100.0).round() / 100.0
         }
         Position::Short => 100.0,
     };
 
     target_underlying_stock_price
+
 }
 
-pub fn scale_leveraged_required_recovery_rate_bp(leveraged_recovery_rate_bp: i64) -> i64 {
-    let scaled_leveraged_required_recovery_rate_bp = (RATE_SCALE * MASTER_PRECISION_SCALE)
-        + (leveraged_recovery_rate_bp * MASTER_PRECISION_SCALE);
+pub fn unscale_target_underlying_stock_price(target_underlying_stock_price_bp_scaled: i128) -> f64 {
+    let target_underlying_stock_price_bp_unscaled_by_master_precision_scale =
+        target_underlying_stock_price_bp_scaled as f64
+            / (MASTER_PRECISION_SCALE as f64 * MASTER_PRECISION_SCALE as f64);
 
-    scaled_leveraged_required_recovery_rate_bp
+    let unscaled_target_underlying_stock_price =
+        target_underlying_stock_price_bp_unscaled_by_master_precision_scale / PRICE_SCALE as f64;
+
+    unscaled_target_underlying_stock_price
 }
 
-pub fn calculate_leveraged_required_recovery_rate_bp(
-    required_recovery_rate_bp: i64,
+pub fn calculate_leveraged_required_recovery_rate_with_master_precision_scale(
+    required_recovery_rate_with_master_precision_scale: i64,
     leverage: &Leverage,
 ) -> i64 {
-    let leveraged_recovery_rate_bp: i64 = ((required_recovery_rate_bp + (leverage.value() / 2))
-        * MASTER_PRECISION_SCALE)
-        / leverage.value();
+    let leveraged_recovery_rate_bp_with_master_precision_scale: i64 =
+        (required_recovery_rate_with_master_precision_scale + (leverage.value() / 2))
+            / leverage.value();
 
-    leveraged_recovery_rate_bp / MASTER_PRECISION_SCALE
+    leveraged_recovery_rate_bp_with_master_precision_scale
 }
 
-pub fn calculate_required_recovery_rate_bp(loss_rate_bp: i64) -> i64 {
-    let required_recovery_rate_scaled: i64 =
+pub fn calculate_required_recovery_rate_with_master_precision_scale(loss_rate_bp: i64) -> i64 {
+    let required_recovery_rate_bp_with_master_precision_scale: i64 =
         (loss_rate_bp * MASTER_PRECISION_SCALE) / (RATE_SCALE - loss_rate_bp);
 
-    let required_recovery_rate_bp: i64 =
-        (required_recovery_rate_scaled * RATE_SCALE) / MASTER_PRECISION_SCALE;
-
-    required_recovery_rate_bp
+    required_recovery_rate_bp_with_master_precision_scale
 }
 
-pub fn convert_recovery_rate_to_percentage(required_recovery_rate_bp: i64) -> f64 {
-    let required_recovery_rate_bp_unscaled = required_recovery_rate_bp / MASTER_PRECISION_SCALE;
-    let required_recovery_rate = required_recovery_rate_bp_unscaled as f64 / RATE_SCALE as f64;
-    required_recovery_rate * 100.0
+pub fn convert_rate_to_percentage(rate_bp_with_master_precision_scaled: i64) -> f64 {
+    let required_rate_bp_unscaled =
+        rate_bp_with_master_precision_scaled as f64 / MASTER_PRECISION_SCALE as f64;
+    let required_rate_bp = (required_rate_bp_unscaled * RATE_SCALE as f64).round();
+    let required_rate = required_rate_bp / 100.0;
+    required_rate
 }
 
 pub fn convert_stock_price_to_bp(user_entered_price: f64) -> i64 {
