@@ -107,7 +107,7 @@ impl fmt::Display for Message {
                 f,
                 "-- 주식 정보 --\n\
             국가 : {}\n\
-            손실율 : {:.2}%\n\
+            손실율 : {}%\n\
             레버리지 배율 : {}\n\
             현재 ETF 추종 주가 : {}",
                 country, loss_rate, leverage, current_underlying_stock_price

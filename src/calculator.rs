@@ -1,6 +1,6 @@
-use crate::types::StockInfo;
 
 use super::constraints::{MASTER_PRECISION_SCALE, PRICE_SCALE, RATE_SCALE};
+use super::types::StockInfo;
 use super::types::Country;
 use super::types::Leverage;
 use super::types::Position;
@@ -12,7 +12,6 @@ pub fn generate_user_stock_info(
     user_entered_loss_rate: f64,
     user_entered_stock_price: f64,
 ) -> StockInfo {
-    
     let loss_rate_bp: i64 = convert_loss_rate_to_bp(user_entered_loss_rate);
 
     let stock_price_bp: i64 = convert_stock_price_to_bp(user_entered_stock_price);
@@ -61,10 +60,10 @@ pub fn calculate_target_underlying_stock_price(
     stock_price_bp: i64,
     leveraged_required_recovery_rate_bp_with_master_precision_scale: i64,
 ) -> f64 {
-    let multiplicand = stock_price_bp * MASTER_PRECISION_SCALE; 
+    let multiplicand = stock_price_bp * MASTER_PRECISION_SCALE;
 
     let multiplier: i128 = (1 * MASTER_PRECISION_SCALE as i128)
-        + (leveraged_required_recovery_rate_bp_with_master_precision_scale as i128); 
+        + (leveraged_required_recovery_rate_bp_with_master_precision_scale as i128);
 
     let target_underlying_stock_price: f64 = match position {
         Position::Long => {
@@ -84,7 +83,6 @@ pub fn calculate_target_underlying_stock_price(
     };
 
     target_underlying_stock_price
-
 }
 
 pub fn unscale_target_underlying_stock_price(target_underlying_stock_price_bp_scaled: i128) -> f64 {

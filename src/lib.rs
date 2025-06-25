@@ -3,3 +3,5 @@ pub mod user_input;
 pub mod calculator;
 pub mod types;
 pub mod constraints;
+pub mod application;
+
