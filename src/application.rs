@@ -6,7 +6,8 @@ use super::display::{print_result, print_start};
 use super::types::{Country, Leverage, Position};
 use super::user_input::*;
 
-enum ErrorType {
+#[derive(Debug)]
+pub enum ErrorType {
     AppNameBlank,
     ExecuteError,
     OverFlow,
@@ -22,32 +23,28 @@ impl fmt::Display for ErrorType {
     }
 }
 
-// impl Error for AppError {
+impl Error for ErrorType {}
 
 
-// }
 
-// 앱의 핵심 로직을 담는 구조체 (옵션)
 pub struct App {
-    // 앱 상태나 설정 등
     name: String,
 }
 
 impl App {
     pub fn new(name: &str) -> Result<Self, ErrorType> {
+        if name.is_empty() {
+            // return Err(AppError("앱 이름은 비어 있을 수 없습니다.".to_string()));
+            return Err(ErrorType::AppNameBlank);
+        }
 
-            if name.is_empty() {
-                return Err(AppError("앱 이름은 비어 있을 수 없습니다.".to_string()));
-                // return ErrorType::AppNameBlank;
-            }
-    
-            Ok(App {
-                name: name.to_string(),
-            })
-            
+        Ok(App {
+            name: name.to_string(),
+        })
     }
 
     pub fn execute_logic(&self) -> Result<(), ErrorType> {
+
         println!("{} 앱이 핵심 로직을 실행합니다.", self.name);
         loop {
             print_start();
@@ -57,15 +54,17 @@ impl App {
             let loss_rate: f64 = enter_loss_rate();
             let current_underlying_stock_price: f64 = enter_stock_price(&country);
 
-            let user_stock_info = generate_user_stock_info(
-                country,
-                position,
-                leverage,
-                loss_rate,
-                current_underlying_stock_price,
-            );
+            match generate_user_stock_info(country, position, leverage, loss_rate, current_underlying_stock_price) {
+                Ok(user_stock_info) => {
+                    print_result(user_stock_info);
+                },
+                Err(ErrorType::OverFlow) => {
+                    println!("{}", ErrorType::OverFlow);
+                    enter_stock_price(&country);
+                },
+                Err(_) => continue
+            };
 
-            print_result(user_stock_info);
             if select_exit() { break } else { continue }
         }
 
@@ -77,10 +76,9 @@ impl App {
 pub fn run() -> Result<(), Box<dyn Error>> {
     println!("애플리케이션이 시작됩니다.");
 
-    // let my_app = App::new("simple-stock-calculator")?;
-    let my_app = App::new("simple-stock-calculator");
-    // my_app.execute_logic()?;
-    my_app.execute_logic();
+    let my_app = App::new("simple-stock-calculator")?;
+
+    my_app.execute_logic()?;
 
     println!("애플리케이션이 성공적으로 종료되었습니다.");
     Ok(())

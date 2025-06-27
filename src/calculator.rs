@@ -1,4 +1,4 @@
-
+use super::application::ErrorType;
 use super::constraints::{MASTER_PRECISION_SCALE, PRICE_SCALE, RATE_SCALE};
 use super::types::StockInfo;
 use super::types::Country;
@@ -11,7 +11,7 @@ pub fn generate_user_stock_info(
     leverage: Leverage,
     user_entered_loss_rate: f64,
     user_entered_stock_price: f64,
-) -> StockInfo {
+) -> Result<StockInfo, ErrorType> {
     let loss_rate_bp: i64 = convert_loss_rate_to_bp(user_entered_loss_rate);
 
     let stock_price_bp: i64 = convert_stock_price_to_bp(user_entered_stock_price);
@@ -25,11 +25,11 @@ pub fn generate_user_stock_info(
             &leverage,
         );
 
-    let target_underlying_stock_price: f64 = calculate_target_underlying_stock_price(
+    let target_underlying_stock_price = calculate_target_underlying_stock_price(
         &position,
         stock_price_bp,
         leveraged_required_recovery_rate_with_master_precision_scale,
-    );
+    )?;
 
     let target_underlying_stock_price_for_country = match country {
         Country::KR => target_underlying_stock_price.round(),
@@ -52,34 +52,41 @@ pub fn generate_user_stock_info(
         target_underlying_stock_price: target_underlying_stock_price_for_country,
     };
 
-    user_stock_info
+    Ok(user_stock_info)
 }
 
 pub fn calculate_target_underlying_stock_price(
     position: &Position,
     stock_price_bp: i64,
     leveraged_required_recovery_rate_bp_with_master_precision_scale: i64,
-) -> f64 {
-    let multiplicand = stock_price_bp * MASTER_PRECISION_SCALE;
+) -> Result<f64, ErrorType> {
+    // let multiplicand = stock_price_bp * MASTER_PRECISION_SCALE;
+
+    let multiplicand= if let Some(price) = stock_price_bp.checked_mul(MASTER_PRECISION_SCALE) {
+        price
+    } else {
+        return Err(ErrorType::OverFlow);
+    };
 
     let multiplier: i128 = (1 * MASTER_PRECISION_SCALE as i128)
         + (leveraged_required_recovery_rate_bp_with_master_precision_scale as i128);
 
-    let target_underlying_stock_price: f64 = match position {
+    let target_underlying_stock_price: Result<f64, ErrorType> = match position {
         Position::Long => {
             let target_underlying_stock_price_bp_scaled: i128 =
                 if let Some(price) = (multiplicand as i128).checked_mul(multiplier as i128) {
                     price
                 } else {
-                    panic!("Over Flow!!");
+                     return Err(ErrorType::OverFlow);
                 };
 
             let target_underlying_stock_price =
                 unscale_target_underlying_stock_price(target_underlying_stock_price_bp_scaled);
 
-            (target_underlying_stock_price * 100.0).round() / 100.0
+            Ok((target_underlying_stock_price * 100.0).round() / 100.0)
+
         }
-        Position::Short => 100.0,
+        Position::Short => Ok(100.0)
     };
 
     target_underlying_stock_price

@@ -1,8 +1,6 @@
 use std::fmt::{self};
 
-use crate::types::Country;
-
-use super::types::{CurrencySign, Leverage, Position, StockInfo};
+use super::types::{Country, CurrencySign, Leverage, Position, StockInfo};
 use super::types::{Guide::*, Invalid::*, Menu::*, Message};
 
 pub fn print_start() {
