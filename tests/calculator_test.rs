@@ -1,3 +1,4 @@
+use simple_stock_calculator::application::ErrorType;
 use simple_stock_calculator::calculator::*;
 use simple_stock_calculator::types::{Country, Leverage, Position, StockInfo};
 // use simple_stock_calculator::constraints::MASTER_PRECISION_SCALE;
@@ -36,15 +37,16 @@ fn test_convert_stock_price_to_bp() {
 }
 
 #[test]
-fn test_calculate_result() {
-    let user_stock_info: StockInfo =
-        generate_user_stock_info(Country::US, Position::Long, Leverage::Daily2x, 70.0, 250.0);
-
-
+fn test_calculate_result() -> Result<(), ErrorType> {
+    let user_stock_info =
+        generate_user_stock_info(Country::US, Position::Long, Leverage::Daily2x, 70.0, 250.0)?;
+    
     let result = user_stock_info.target_underlying_stock_price;
+
     let expected: f64 = 541.67;
 
     assert_eq!(result, expected);
+    Ok(())
 }
 
 #[test]
@@ -59,7 +61,10 @@ fn test_calculate_required_recovery_rate_bp() {
 
 #[test]
 fn test_scale_leveraged_required_recovery_rate_bp() {
-    let result = calculate_leveraged_required_recovery_rate_with_master_precision_scale(2333333333333, &Leverage::Daily2x);
+    let result = calculate_leveraged_required_recovery_rate_with_master_precision_scale(
+        2333333333333,
+        &Leverage::Daily2x,
+    );
 
     let expected = 11667000000000000;
 
@@ -70,8 +75,8 @@ fn test_scale_leveraged_required_recovery_rate_bp() {
 //     expected = "Over Flow in calculate_target_stock_price: intermediate product exceeds i128 max!"
 // )] // gemini
 #[test]
-fn test_calculate_target_stock_price() {
-    let result1: f64 = calculate_target_underlying_stock_price(&Position::Long, 25000, 11667);
+fn test_calculate_target_stock_price() -> Result<(), ErrorType> {
+    let result1: f64 = calculate_target_underlying_stock_price(&Position::Long, 25000, 11667)?;
     // 21667000000000000
     let expected: f64 = 541.67;
 
@@ -84,4 +89,5 @@ fn test_calculate_target_stock_price() {
 
        assert!(result2 > EPSILON);
     */
+    Ok(())
 }

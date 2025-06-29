@@ -1,3 +1,6 @@
+use std::io;
+
+use crate::application::ErrorType;
 use crate::types::Guide::EnteredValue;
 use crate::types::Invalid::{InvalidChoice, InvalidInt, InvalidNumber, InvalidRange, InvalidYn};
 use crate::{
@@ -5,33 +8,30 @@ use crate::{
     types::{Country, CurrencySign, Message},
 };
 
-pub fn get_input_select<T: std::fmt::Display>(prompt: Message, parser: fn(&str) -> Option<T>) -> T {
-    loop {
-        println!("{}", prompt);
+pub fn get_input_select<T: std::fmt::Display>(
+    prompt: Message,
+    parser: fn(&str) -> Result<T, ErrorType>,
+) -> Result<T, ErrorType> {
+    println!("{}", prompt);
 
-        let input = user_input();
+    let input = user_input()?;
 
-        if let Some(value) = parser(&input) {
-            println!("{}: {}\n", Message::GuideMessage(EnteredValue), value);
-            return value;
-        } else {
-            println!("{}", Message::InvalidMessage(InvalidChoice));
-            println!("{}: {}\n", Message::GuideMessage(EnteredValue), input);
-        }
-    }
+    let value = parser(&input)?;
+    println!("{}: {}\n", Message::GuideMessage(EnteredValue), value);
+    Ok(value)
 }
 
-pub fn get_input_rate(prompt: Message) -> f64 {
-    loop {
+pub fn get_input_rate(prompt: Message) -> Result<f64, ErrorType> {
+    // loop {
         println!("{}", prompt);
 
-        let input = user_input();
+        let input = user_input()?;
 
         match input.parse::<f64>() {
             Ok(value) => {
                 if value > MIN_LOSS_RATE && value < MAX_LOSS_RATE {
                     println!("{}: {}%\n", Message::GuideMessage(EnteredValue), value);
-                    return value;
+                    value
                 } else {
                     println!(
                         "{} ({}% ~ {}%)",
@@ -40,11 +40,15 @@ pub fn get_input_rate(prompt: Message) -> f64 {
                         MAX_LOSS_RATE
                     );
                     println!("{}: {}\n", Message::GuideMessage(EnteredValue), value);
+                    // ErrorType::InvalidInputFormat("유효한 범위가 아닙니다.".to_string())
+                    value
+                    // continue
                 }
             }
-            Err(_) => println!("{}", Message::InvalidMessage(InvalidNumber)),
+            // Err(_) => println!("{}", Message::InvalidMessage(InvalidNumber)),
+            Err(_) => ErrorType::InvalidInputFormat("유효한 숫자가 아닙니다.".to_string())
         };
-    }
+    // }
 }
 
 pub fn get_input_price(prompt: Message, country: &Country) -> f64 {
@@ -99,7 +103,6 @@ pub fn get_input_price(prompt: Message, country: &Country) -> f64 {
             );
             continue;
         }
-
     }
 }
 
@@ -118,8 +121,8 @@ pub fn get_input_exit(prompt: Message) -> bool {
     }
 }
 
-fn user_input() -> String {
+fn user_input() -> Result<String, io::Error> {
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("입력 실패");
-    input.trim().to_string()
+    std::io::stdin().read_line(&mut input)?;
+    Ok(input.trim().to_string())
 }
