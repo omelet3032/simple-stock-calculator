@@ -38,4 +38,3 @@ pub fn enter_stock_price(country:&Country) -> f64 {
 pub fn select_exit() -> bool {
     get_input_exit(Message::GuideMessage(Exit))
 }
-

@@ -10,7 +10,7 @@ repository = "https://github.com/omelet3032/simple-stock-calculator"
 
 [dependencies]
 proptest = "1.0.0"
-
+rust_decimal = {version = "1.37", features = ["macros"]}
 
 [package.metadata.rpm]
 package = "simple-stock-calculator"

@@ -1,9 +1,8 @@
-use crate::types::StockInfo;
+use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 use super::constraints::{MASTER_PRECISION_SCALE, PRICE_SCALE, RATE_SCALE};
-use super::types::Country;
-use super::types::Leverage;
-use super::types::Position;
+use super::types::{StockInfo, Country, Leverage, Position};
 
 pub fn generate_user_stock_info(
     country: Country,
