@@ -1,5 +1,6 @@
 use rust_decimal::Decimal;
 use rust_decimal::prelude::*;
+use rust_decimal::Error;
 
 use super::constraints::{MASTER_PRECISION_SCALE, PRICE_SCALE, RATE_SCALE};
 use super::types::{StockInfo, Country, Leverage, Position};
@@ -108,11 +109,29 @@ pub fn calculate_leveraged_required_recovery_rate_with_master_precision_scale(
     leveraged_recovery_rate_bp_with_master_precision_scale
 }
 
-pub fn calculate_required_recovery_rate_with_master_precision_scale(loss_rate_bp: i64) -> i64 {
-    let required_recovery_rate_bp_with_master_precision_scale: i64 =
-        (loss_rate_bp * MASTER_PRECISION_SCALE) / (RATE_SCALE - loss_rate_bp);
+pub fn calculate_leveraged_required_recovery_rate(required_recovery_rate:Decimal, leverage: &Leverage) -> Result<Decimal, rust_decimal::Error> {
 
-    required_recovery_rate_bp_with_master_precision_scale
+    let leveraged_required_recovery_rate = required_recovery_rate / Decimal::from(leverage.value());
+
+    Ok(leveraged_required_recovery_rate)
+}
+
+// pub fn calculate_required_recovery_rate_with_master_precision_scale(loss_rate_bp: i64) -> i64 {
+//     let required_recovery_rate_bp_with_master_precision_scale: i64 =
+//         (loss_rate_bp * MASTER_PRECISION_SCALE) / (RATE_SCALE - loss_rate_bp);
+
+//     required_recovery_rate_bp_with_master_precision_scale
+// }
+
+pub fn calculate_required_recovery_rate(user_entered_loss_rate:&str) -> Result<Decimal, rust_decimal::Error> {
+   
+    let loss_rate_decimal = Decimal::from_str_exact(user_entered_loss_rate)?;
+   
+    let loss_rate_ratio = loss_rate_decimal / Decimal::from(100);
+
+    let required_recovery_rate = loss_rate_ratio / (Decimal::from(1) - loss_rate_ratio);
+
+    Ok(required_recovery_rate)
 }
 
 pub fn convert_rate_to_percentage(rate_bp_with_master_precision_scaled: i64) -> f64 {

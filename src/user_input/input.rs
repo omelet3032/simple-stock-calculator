@@ -21,13 +21,13 @@ pub fn get_input_select<T: std::fmt::Display>(prompt: Message, parser: fn(&str) 
     }
 }
 
-pub fn get_input_rate(prompt: Message) -> f64 {
+pub fn get_input_rate(prompt: Message) -> String {
     loop {
         println!("{}", prompt);
 
         let input = user_input();
 
-        match input.parse::<f64>() {
+        match input.parse() {
             Ok(value) => {
                 if value > MIN_LOSS_RATE && value < MAX_LOSS_RATE {
                     println!("{}: {}%\n", Message::GuideMessage(EnteredValue), value);
